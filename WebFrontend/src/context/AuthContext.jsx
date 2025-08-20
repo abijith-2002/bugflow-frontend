@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../supabaseClient';
+import { getURL } from '../utils/getURL';
 
 const AuthContext = createContext(null);
 
@@ -58,12 +59,12 @@ export function AuthProvider({ children }) {
     /** Sign up with email/password and email redirect */
     signUp: async (email, password) => {
       /** Uses supabase.auth.signUp to register a new user. */
-      const url = process.env.REACT_APP_SITE_URL || window.location.origin;
+      const siteUrl = getURL(); // Ensures protocol and trailing slash
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${url}/auth/callback`,
+          emailRedirectTo: `${siteUrl}auth/callback`,
         },
       });
       if (error) throw error;
