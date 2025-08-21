@@ -112,53 +112,57 @@ const Bugs = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Bugs</h1>
-          <p className="text-muted">Track and manage bug reports</p>
+          <h1 className="text-4xl font-bold mb-2 text-primary">Bugs</h1>
+          <p className="text-muted text-lg">Track and manage bug reports</p>
         </div>
-        <Link to="/bugs/create" className="btn btn-primary flex items-center gap-2">
+        <Link to="/bugs/create" className="btn btn-primary">
           <Plus size={20} />
           Report Bug
         </Link>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
-          <input
-            type="text"
-            placeholder="Search bugs..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="input pl-10"
-          />
+      <div className="card p-4 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="relative flex-1">
+            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
+            <input
+              type="text"
+              placeholder="Search bugs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input pl-10"
+            />
+          </div>
+
+          <select
+            value={filters.status}
+            onChange={(e) => handleFilterChange('status', e.target.value)}
+            className="select input"
+            style={{ minWidth: '140px' }}
+          >
+            <option value="">All Status</option>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+          </select>
+
+          <select
+            value={filters.priority}
+            onChange={(e) => handleFilterChange('priority', e.target.value)}
+            className="select input"
+            style={{ minWidth: '140px' }}
+          >
+            <option value="">All Priority</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
         </div>
-
-        <select
-          value={filters.status}
-          onChange={(e) => handleFilterChange('status', e.target.value)}
-          className="select input"
-        >
-          <option value="">All Status</option>
-          <option value="open">Open</option>
-          <option value="in_progress">In Progress</option>
-          <option value="resolved">Resolved</option>
-          <option value="closed">Closed</option>
-        </select>
-
-        <select
-          value={filters.priority}
-          onChange={(e) => handleFilterChange('priority', e.target.value)}
-          className="select input"
-        >
-          <option value="">All Priority</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-          <option value="critical">Critical</option>
-        </select>
       </div>
 
       {/* Bugs List */}

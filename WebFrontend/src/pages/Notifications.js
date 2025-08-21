@@ -78,10 +78,10 @@ const Notifications = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Notifications</h1>
-          <p className="text-muted">
+          <h1 className="text-4xl font-bold mb-2 text-primary">Notifications</h1>
+          <p className="text-muted text-lg">
             {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}` : 'All caught up!'}
           </p>
         </div>
@@ -89,7 +89,7 @@ const Notifications = () => {
         {unreadCount > 0 && (
           <button 
             onClick={markAllAsRead}
-            className="btn btn-secondary flex items-center gap-2"
+            className="btn btn-secondary"
           >
             <CheckCheck size={16} />
             Mark All Read
@@ -98,24 +98,30 @@ const Notifications = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1 border-b border-subtle">
-        {[
-          { key: 'all', label: 'All', count: notifications.length },
-          { key: 'unread', label: 'Unread', count: unreadCount },
-          { key: 'read', label: 'Read', count: notifications.length - unreadCount }
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key)}
-            className={`px-4 py-2 font-medium text-sm rounded-t-lg transition-colors ${
-              filter === tab.key 
-                ? 'text-primary border-b-2 border-primary' 
-                : 'text-muted hover:text-secondary'
-            }`}
-          >
-            {tab.label} ({tab.count})
-          </button>
-        ))}
+      <div className="card p-1 mb-6">
+        <div className="flex items-center gap-1">
+          {[
+            { key: 'all', label: 'All', count: notifications.length },
+            { key: 'unread', label: 'Unread', count: unreadCount },
+            { key: 'read', label: 'Read', count: notifications.length - unreadCount }
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key)}
+              className={`px-4 py-2 font-medium text-sm rounded-lg transition-colors flex-1 ${
+                filter === tab.key 
+                  ? 'text-primary' 
+                  : 'text-muted hover:text-secondary hover:bg-tertiary'
+              }`}
+              style={{
+                background: filter === tab.key ? 'var(--accent-primary)' : 'transparent',
+                color: filter === tab.key ? 'var(--text-primary)' : undefined
+              }}
+            >
+              {tab.label} ({tab.count})
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Notifications List */}
@@ -125,27 +131,31 @@ const Notifications = () => {
             <div 
               key={notification.id}
               className={`card transition-all hover:shadow-md cursor-pointer ${
-                !notification.read ? 'border-l-4 border-l-primary bg-elevated' : ''
+                !notification.read ? 'border-l-4 bg-elevated' : ''
               }`}
+              style={{
+                borderLeftColor: !notification.read ? 'var(--accent-primary)' : undefined,
+                background: !notification.read ? 'var(--bg-elevated)' : undefined
+              }}
               onClick={() => !notification.read && handleMarkAsRead(notification.id, { stopPropagation: () => {} })}
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 mt-1">
+                <div className="flex-shrink-0 mt-1 p-2 rounded-lg" style={{ background: 'var(--bg-tertiary)' }}>
                   {getNotificationIcon(notification.type)}
                 </div>
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className={`font-medium ${!notification.read ? 'text-primary' : 'text-secondary'}`}>
+                      <h3 className={`font-medium mb-1 ${!notification.read ? 'text-primary' : 'text-secondary'}`}>
                         {notification.title}
                       </h3>
-                      <p className="text-muted text-sm mt-1">
+                      <p className="text-muted text-sm">
                         {notification.message}
                       </p>
                     </div>
                     
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex items-center gap-3 ml-4">
                       <div className="flex items-center gap-1 text-xs text-muted">
                         <Clock size={12} />
                         {formatDate(notification.created_at)}
@@ -154,7 +164,7 @@ const Notifications = () => {
                       {!notification.read && (
                         <button
                           onClick={(e) => handleMarkAsRead(notification.id, e)}
-                          className="p-1 hover:bg-tertiary rounded"
+                          className="btn-icon hover:bg-tertiary"
                           title="Mark as read"
                         >
                           <Check size={14} />

@@ -76,22 +76,28 @@ const CreateBug = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 mb-8">
         <button 
           onClick={() => navigate('/bugs')}
-          className="p-2 hover:bg-tertiary rounded"
+          className="btn-icon hover:bg-tertiary"
         >
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-4xl font-bold mb-2">Report Bug</h1>
-          <p className="text-muted">Submit a new bug report</p>
+          <h1 className="text-4xl font-bold mb-2 text-primary">Report Bug</h1>
+          <p className="text-muted text-lg">Submit a new bug report</p>
         </div>
       </div>
 
       {error && (
-        <div className="card border-error">
-          <p className="text-error">{error}</p>
+        <div 
+          className="card mb-6" 
+          style={{ 
+            border: '1px solid var(--accent-error)',
+            background: 'rgba(239, 68, 68, 0.05)'
+          }}
+        >
+          <p style={{ color: 'var(--accent-error)' }}>{error}</p>
         </div>
       )}
 
@@ -104,7 +110,7 @@ const CreateBug = () => {
               
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="title" className="block text-sm font-medium mb-2">
+                  <label htmlFor="title" className="form-label">
                     Bug Title *
                   </label>
                   <input
@@ -120,7 +126,7 @@ const CreateBug = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium mb-2">
+                  <label htmlFor="description" className="form-label">
                     Description *
                   </label>
                   <textarea
@@ -136,7 +142,7 @@ const CreateBug = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="steps_to_reproduce" className="block text-sm font-medium mb-2">
+                  <label htmlFor="steps_to_reproduce" className="form-label">
                     Steps to Reproduce
                   </label>
                   <textarea
@@ -151,7 +157,7 @@ const CreateBug = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="expected_behavior" className="block text-sm font-medium mb-2">
+                  <label htmlFor="expected_behavior" className="form-label">
                     Expected Behavior
                   </label>
                   <textarea
@@ -166,7 +172,7 @@ const CreateBug = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="actual_behavior" className="block text-sm font-medium mb-2">
+                  <label htmlFor="actual_behavior" className="form-label">
                     Actual Behavior
                   </label>
                   <textarea
@@ -190,7 +196,7 @@ const CreateBug = () => {
               
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="priority" className="block text-sm font-medium mb-2">
+                  <label htmlFor="priority" className="form-label">
                     Priority *
                   </label>
                   <select
@@ -212,7 +218,7 @@ const CreateBug = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="project_id" className="block text-sm font-medium mb-2">
+                  <label htmlFor="project_id" className="form-label">
                     Project
                   </label>
                   <select

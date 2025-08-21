@@ -57,29 +57,30 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-primary">
-      <div className="card" style={{ width: '100%', maxWidth: '400px' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-primary)' }}>
+      <div className="card w-full" style={{ maxWidth: '400px' }}>
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Bug size={40} className="text-primary" style={{ color: 'var(--accent-primary)' }} />
-            <h1 className="text-3xl font-bold">BugFlow</h1>
+            <Bug size={40} style={{ color: 'var(--accent-primary)' }} />
+            <h1 className="text-3xl font-bold text-primary">BugFlow</h1>
           </div>
           <p className="text-muted">Create your account</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded bg-error text-error" style={{ 
+          <div className="mb-4 p-3 rounded" style={{ 
             background: 'rgba(239, 68, 68, 0.1)',
             color: 'var(--accent-error)',
-            fontSize: 'var(--text-sm)'
+            fontSize: 'var(--text-sm)',
+            border: '1px solid rgba(239, 68, 68, 0.2)'
           }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
+            <label htmlFor="email" className="form-label">
               Email Address
             </label>
             <input
@@ -95,7 +96,7 @@ const Register = () => {
           </div>
 
           <div>
-            <label htmlFor="role" className="block text-sm font-medium mb-2">
+            <label htmlFor="role" className="form-label">
               Role
             </label>
             <select
@@ -112,10 +113,10 @@ const Register = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-2">
+            <label htmlFor="password" className="form-label">
               Password
             </label>
-            <div style={{ position: 'relative' }}>
+            <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 id="password"
@@ -124,21 +125,21 @@ const Register = () => {
                 onChange={handleChange}
                 className="input"
                 placeholder="Enter your password"
-                style={{ paddingRight: '40px' }}
+                style={{ paddingRight: '44px' }}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 btn-icon"
+                style={{ 
                   background: 'none',
                   border: 'none',
                   color: 'var(--text-muted)',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: '32px',
+                  height: '32px',
+                  padding: '0'
                 }}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -147,10 +148,10 @@ const Register = () => {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+            <label htmlFor="confirmPassword" className="form-label">
               Confirm Password
             </label>
-            <div style={{ position: 'relative' }}>
+            <div className="relative">
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 id="confirmPassword"
@@ -159,21 +160,21 @@ const Register = () => {
                 onChange={handleChange}
                 className="input"
                 placeholder="Confirm your password"
-                style={{ paddingRight: '40px' }}
+                style={{ paddingRight: '44px' }}
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 btn-icon"
+                style={{ 
                   background: 'none',
                   border: 'none',
                   color: 'var(--text-muted)',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  width: '32px',
+                  height: '32px',
+                  padding: '0'
                 }}
               >
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -183,14 +184,8 @@ const Register = () => {
 
           <button
             type="submit"
-            className="btn btn-primary"
+            className="btn btn-primary w-full"
             disabled={loading}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              gap: 'var(--space-2)'
-            }}
           >
             {loading && <div className="spinner" style={{ width: '16px', height: '16px' }}></div>}
             {loading ? 'Creating account...' : 'Create Account'}
@@ -202,7 +197,7 @@ const Register = () => {
             Already have an account?{' '}
             <Link 
               to="/login" 
-              className="text-primary hover:underline"
+              className="hover:underline"
               style={{ color: 'var(--accent-primary)' }}
             >
               Sign in

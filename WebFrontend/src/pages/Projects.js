@@ -75,14 +75,14 @@ const Projects = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Projects</h1>
-          <p className="text-muted">Manage your development projects</p>
+          <h1 className="text-4xl font-bold mb-2 text-primary">Projects</h1>
+          <p className="text-muted text-lg">Manage your development projects</p>
         </div>
         <button 
           onClick={() => console.log('Create project modal would open here')}
-          className="btn btn-primary flex items-center gap-2"
+          className="btn btn-primary"
         >
           <Plus size={20} />
           New Project
@@ -90,30 +90,34 @@ const Projects = () => {
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
-        <input
-          type="text"
-          placeholder="Search projects..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="input pl-10"
-        />
+      <div className="card p-4 mb-6">
+        <div className="relative">
+          <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted" />
+          <input
+            type="text"
+            placeholder="Search projects..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="input pl-10"
+          />
+        </div>
       </div>
 
       {/* Projects Grid */}
       {filteredProjects.length > 0 ? (
         <div className="grid grid-cols-3 gap-6">
           {filteredProjects.map((project) => (
-            <div key={project.id} className="card hover:shadow-md transition-shadow">
+            <div key={project.id} className="card hover:shadow-md transition-all">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <FolderOpen size={24} style={{ color: 'var(--accent-primary)' }} />
-                  <h3 className="text-lg font-semibold">{project.name}</h3>
+                  <div className="p-2 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+                    <FolderOpen size={24} style={{ color: 'var(--accent-primary)' }} />
+                  </div>
+                  <h3 className="text-lg font-semibold text-primary">{project.name}</h3>
                 </div>
                 <button
                   onClick={() => setSelectedProject(project)}
-                  className="p-1 hover:bg-tertiary rounded"
+                  className="btn-icon hover:bg-tertiary"
                 >
                   <MoreVertical size={16} />
                 </button>
@@ -123,26 +127,27 @@ const Projects = () => {
                 {project.description}
               </p>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  <Users size={16} />
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-2 text-sm text-secondary">
+                  <Users size={16} className="text-muted" />
                   <span>{project.members?.length || 0} members</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted">
-                  <Calendar size={16} />
+                <div className="flex items-center gap-2 text-sm text-secondary">
+                  <Calendar size={16} className="text-muted" />
                   <span>Created {formatDate(project.created_at)}</span>
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t border-subtle">
                 <div className="flex items-center gap-2">
-                  <span className="badge badge-low">
+                  <span className="badge badge-info">
                     {project.bugs_count || 0} bugs
                   </span>
                 </div>
                 <Link 
                   to={`/bugs?project=${project.id}`}
-                  className="text-primary hover:underline text-sm"
+                  className="hover:underline text-sm"
+                  style={{ color: 'var(--accent-primary)' }}
                 >
                   View Bugs
                 </Link>

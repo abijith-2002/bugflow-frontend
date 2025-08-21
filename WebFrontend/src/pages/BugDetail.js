@@ -122,16 +122,16 @@ const BugDetail = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate('/bugs')}
-            className="p-2 hover:bg-tertiary rounded"
+            className="btn-icon hover:bg-tertiary"
           >
             <ArrowLeft size={20} />
           </button>
           <div>
-            <h1 className="text-3xl font-bold mb-1">{bug.title}</h1>
+            <h1 className="text-3xl font-bold mb-2 text-primary">{bug.title}</h1>
             <div className="flex items-center gap-3">
               <span className={getPriorityBadgeClass(bug.priority)}>
                 {bug.priority}
@@ -143,12 +143,12 @@ const BugDetail = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button className="btn btn-secondary flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <button className="btn btn-secondary">
             <Edit size={16} />
             Edit
           </button>
-          <button className="btn btn-danger flex items-center gap-2">
+          <button className="btn btn-danger">
             <Trash2 size={16} />
             Delete
           </button>
@@ -228,33 +228,34 @@ const BugDetail = () => {
         <div className="space-y-6">
           {/* Bug Info */}
           <div className="card">
-            <h3 className="font-semibold mb-4">Bug Information</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm text-muted">Reporter</label>
+            <h3 className="font-semibold mb-4 text-primary">Bug Information</h3>
+            <div className="space-y-4">
+              <div className="border-b border-subtle pb-3">
+                <label className="text-sm text-muted font-medium">Reporter</label>
                 <div className="flex items-center gap-2 mt-1">
-                  <User size={16} />
-                  <span>{bug.reported_by?.email}</span>
+                  <User size={16} className="text-muted" />
+                  <span className="text-secondary">{bug.reported_by?.email}</span>
                 </div>
               </div>
 
               {bug.assigned_to && (
-                <div>
-                  <label className="text-sm text-muted">Assignee</label>
+                <div className="border-b border-subtle pb-3">
+                  <label className="text-sm text-muted font-medium">Assignee</label>
                   <div className="flex items-center gap-2 mt-1">
-                    <User size={16} />
-                    <span>{bug.assigned_to.email}</span>
+                    <User size={16} className="text-muted" />
+                    <span className="text-secondary">{bug.assigned_to.email}</span>
                   </div>
                 </div>
               )}
 
               {bug.project && (
-                <div>
-                  <label className="text-sm text-muted">Project</label>
+                <div className="border-b border-subtle pb-3">
+                  <label className="text-sm text-muted font-medium">Project</label>
                   <div className="mt-1">
                     <Link 
                       to={`/bugs?project=${bug.project.id}`}
-                      className="text-primary hover:underline"
+                      className="hover:underline"
+                      style={{ color: 'var(--accent-primary)' }}
                     >
                       {bug.project.name}
                     </Link>
@@ -262,19 +263,19 @@ const BugDetail = () => {
                 </div>
               )}
 
-              <div>
-                <label className="text-sm text-muted">Created</label>
+              <div className="border-b border-subtle pb-3">
+                <label className="text-sm text-muted font-medium">Created</label>
                 <div className="flex items-center gap-2 mt-1">
-                  <Calendar size={16} />
-                  <span>{formatDate(bug.created_at)}</span>
+                  <Calendar size={16} className="text-muted" />
+                  <span className="text-secondary">{formatDate(bug.created_at)}</span>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm text-muted">Last Updated</label>
+                <label className="text-sm text-muted font-medium">Last Updated</label>
                 <div className="flex items-center gap-2 mt-1">
-                  <Calendar size={16} />
-                  <span>{formatDate(bug.updated_at)}</span>
+                  <Calendar size={16} className="text-muted" />
+                  <span className="text-secondary">{formatDate(bug.updated_at)}</span>
                 </div>
               </div>
             </div>
@@ -308,10 +309,20 @@ const BugDetail = () => {
 
           {/* Priority Alert */}
           {bug.priority === 'critical' && (
-            <div className="card border-error">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle size={20} style={{ color: 'var(--accent-error)' }} />
-                <h3 className="font-semibold text-error">Critical Priority</h3>
+            <div 
+              className="card" 
+              style={{ 
+                border: '1px solid var(--accent-error)',
+                background: 'rgba(239, 68, 68, 0.05)'
+              }}
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+                  <AlertTriangle size={20} style={{ color: 'var(--accent-error)' }} />
+                </div>
+                <h3 className="font-semibold" style={{ color: 'var(--accent-error)' }}>
+                  Critical Priority
+                </h3>
               </div>
               <p className="text-sm text-muted">
                 This bug has been marked as critical and requires immediate attention.

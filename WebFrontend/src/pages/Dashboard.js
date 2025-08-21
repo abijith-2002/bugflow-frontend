@@ -94,56 +94,64 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted">Overview of your bug tracking system</p>
+          <h1 className="text-4xl font-bold mb-2 text-primary">Dashboard</h1>
+          <p className="text-muted text-lg">Overview of your bug tracking system</p>
         </div>
-        <Link to="/bugs/create" className="btn btn-primary flex items-center gap-2">
+        <Link to="/bugs/create" className="btn btn-primary">
           <Plus size={20} />
           Report Bug
         </Link>
       </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-4 gap-6">
-        <div className="card">
+      {/* Metrics Grid - Updated with enhanced styling */}
+      <div className="grid grid-cols-4 gap-6 mb-8">
+        <div className="card hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-muted text-sm mb-1">Total Bugs</p>
-              <p className="text-2xl font-bold">{stats.totalBugs}</p>
+              <p className="text-muted text-sm font-medium mb-2">Total Bugs</p>
+              <p className="text-2xl font-bold text-primary">{stats.totalBugs}</p>
             </div>
-            <Bug size={24} className="text-muted" />
+            <div className="p-3 rounded-lg" style={{ background: 'var(--bg-tertiary)' }}>
+              <Bug size={24} className="text-muted" />
+            </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="card hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-muted text-sm mb-1">Open Bugs</p>
-              <p className="text-2xl font-bold">{stats.openBugs}</p>
+              <p className="text-muted text-sm font-medium mb-2">Open Bugs</p>
+              <p className="text-2xl font-bold text-primary">{stats.openBugs}</p>
             </div>
-            <AlertTriangle size={24} style={{ color: 'var(--accent-warning)' }} />
+            <div className="p-3 rounded-lg" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
+              <AlertTriangle size={24} style={{ color: 'var(--accent-warning)' }} />
+            </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="card hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-muted text-sm mb-1">In Progress</p>
-              <p className="text-2xl font-bold">{stats.inProgressBugs}</p>
+              <p className="text-muted text-sm font-medium mb-2">In Progress</p>
+              <p className="text-2xl font-bold text-primary">{stats.inProgressBugs}</p>
             </div>
-            <Clock size={24} style={{ color: 'var(--accent-primary)' }} />
+            <div className="p-3 rounded-lg" style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
+              <Clock size={24} style={{ color: 'var(--accent-primary)' }} />
+            </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="card hover:shadow-md transition-all">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-muted text-sm mb-1">Resolved</p>
-              <p className="text-2xl font-bold">{stats.resolvedBugs}</p>
+              <p className="text-muted text-sm font-medium mb-2">Resolved</p>
+              <p className="text-2xl font-bold text-primary">{stats.resolvedBugs}</p>
             </div>
-            <CheckCircle size={24} style={{ color: 'var(--accent-success)' }} />
+            <div className="p-3 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+              <CheckCircle size={24} style={{ color: 'var(--accent-success)' }} />
+            </div>
           </div>
         </div>
       </div>
@@ -222,11 +230,21 @@ const Dashboard = () => {
 
       {/* Critical Bugs Alert */}
       {stats.criticalBugs > 0 && (
-        <div className="card" style={{ border: '1px solid var(--accent-error)' }}>
-          <div className="flex items-center gap-3">
-            <AlertTriangle size={24} style={{ color: 'var(--accent-error)' }} />
+        <div 
+          className="card" 
+          style={{ 
+            border: '1px solid var(--accent-error)',
+            background: 'rgba(239, 68, 68, 0.05)'
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-lg" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+              <AlertTriangle size={24} style={{ color: 'var(--accent-error)' }} />
+            </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-error">Critical Bugs Require Attention</h3>
+              <h3 className="font-semibold text-lg mb-1" style={{ color: 'var(--accent-error)' }}>
+                Critical Bugs Require Attention
+              </h3>
               <p className="text-sm text-muted">
                 You have {stats.criticalBugs} critical bug{stats.criticalBugs !== 1 ? 's' : ''} that need immediate attention.
               </p>
