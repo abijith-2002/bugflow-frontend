@@ -1,48 +1,84 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import Layout from './components/Layout/Layout';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Projects from './pages/Projects';
+import Bugs from './pages/Bugs';
+import BugDetail from './pages/BugDetail';
+import CreateBug from './pages/CreateBug';
+import ProtectedRoute from './components/ProtectedRoute';
 
-// PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
-
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <NotificationProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              
+              {/* Protected Routes */}
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Dashboard />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/projects" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Projects />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/bugs" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Bugs />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/bugs/create" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <CreateBug />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/bugs/:bugId" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <BugDetail />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              {/* Default redirect */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </Router>
+      </NotificationProvider>
+    </AuthProvider>
   );
 }
 
