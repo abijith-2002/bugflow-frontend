@@ -10,6 +10,7 @@ import Projects from './pages/Projects';
 import Bugs from './pages/Bugs';
 import BugDetail from './pages/BugDetail';
 import CreateBug from './pages/CreateBug';
+import Notifications from './pages/Notifications';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -68,6 +69,14 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <BugDetail />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="/notifications" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Notifications />
                   </Layout>
                 </ProtectedRoute>
               } />

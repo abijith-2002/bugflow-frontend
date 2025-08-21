@@ -16,15 +16,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
-  useEffect(() => {
-    if (token) {
-      // Verify token and get user info
-      getCurrentUser();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
-
   const getCurrentUser = async () => {
     try {
       const userData = await authApi.getCurrentUser();
@@ -36,6 +27,16 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (token) {
+      // Verify token and get user info
+      getCurrentUser();
+    } else {
+      setLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const login = async (email, password) => {
     try {
