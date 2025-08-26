@@ -1,13 +1,67 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Import Reddit Sans from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@300;400;500;600;700&display=swap');
+
+/* Global reset and typography */
+* {
+  box-sizing: border-box;
 }
 
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Reddit Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Code font */
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Provide base colors using Nord variables (defined in App.css) with fallbacks */
+:root {
+  color-scheme: light dark;
+  --bg: var(--nord0, #2E3440);
+  --panel: var(--nord1, #3B4252);
+  --panel-2: var(--nord2, #434C5E);
+  --panel-3: var(--nord3, #4C566A);
+  --text: var(--nord6, #ECEFF4);
+  --text-muted: color-mix(in oklch, var(--text), transparent 40%);
+  --primary: var(--nord8, #88C0D0);
+  --success: var(--nord14, #A3BE8C);
+  --danger: var(--nord11, #BF616A);
+  --warning: var(--nord13, #EBCB8B);
+  --border: color-mix(in oklch, var(--text), transparent 85%);
+  --focus: var(--nord9, #81A1C1);
+}
+
+/* Allow theme switching via data-theme set on <html> or :root */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --panel: #f7f9fb;
+  --panel-2: #eef2f6;
+  --panel-3: #e5ecf3;
+  --text: #1e2430;
+  --text-muted: rgba(30, 36, 48, 0.65);
+  --primary: var(--nord8, #5b9fb2);
+  --success: var(--nord14, #6aa56e);
+  --danger: var(--nord11, #c0575f);
+  --warning: var(--nord13, #d9b15d);
+  --border: rgba(0,0,0,0.12);
+}
+
+/* Links */
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
 }
