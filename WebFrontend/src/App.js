@@ -112,9 +112,15 @@ function App() {
             strokeLinejoin="round"
             aria-hidden="true"
           >
-            <path d="M12 2L8 6l4 4-4 4 4 4-4 4 4 4" />
-            <path d="M4 8h16" />
-            <path d="M4 16h16" />
+            <circle cx="12" cy="12" r="6" />
+            <path d="M12 3V6" />
+            <path d="M12 18v3" />
+            <path d="M8 9l-3-3" />
+            <path d="M16 9l3-3" />
+            <path d="M8 15l-3 3" />
+            <path d="M16 15l3 3" />
+            <circle cx="10" cy="10" r="1" fill="currentColor" />
+            <circle cx="14" cy="10" r="1" fill="currentColor" />
           </svg>
           <h1 className="app-title">BugFlow</h1>
         </div>
