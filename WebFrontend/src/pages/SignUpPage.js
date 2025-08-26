@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiPost } from '../api';
 
 // PUBLIC_INTERFACE
 export default function SignUpPage() {
-  /** Sign-up screen posting to /auth/signup. Shows verification hints. */
+  /** Sign-up screen posting to /auth/signup. On success, shows success message then redirects to login. */
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // After success message is shown, redirect to login shortly after.
+    if (result && result._success) {
+      const timer = setTimeout(() => {
+        navigate('/login', { replace: true });
+      }, 1200); // brief delay so user sees the success message
+      return () => clearTimeout(timer);
+    }
+  }, [result, navigate]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -22,8 +34,9 @@ export default function SignUpPage() {
     setLoading(true);
     try {
       const payload = { email, password };
-      const data = await apiPost('/auth/signup', payload);
-      setResult(data || { message: 'Registered. Check your email for confirmation.', needs_verification: true });
+      await apiPost('/auth/signup', payload);
+      // Regardless of backend message/fields, enforce the new UX requirements:
+      setResult({ _success: true, message: 'User registered successfully' });
     } catch (err) {
       setError(err?.message || 'Sign up failed');
     } finally {
@@ -37,10 +50,9 @@ export default function SignUpPage() {
       <p className="subtitle">Use your email and a strong password</p>
 
       {error ? <div className="error">{error}</div> : null}
-      {result ? (
+      {result && result._success ? (
         <div className="success" style={{ marginBottom: 12 }}>
-          {result.message || 'Registration completed.'}
-          {result.needs_verification ? ' Please check your email to verify your account.' : ''}
+          {result.message}
         </div>
       ) : null}
       <form className="form" onSubmit={onSubmit}>
