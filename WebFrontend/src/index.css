@@ -67,7 +67,6 @@ input, button, select, textarea {
   min-height: calc(100% - 72px); /* account for global header height */
   display: grid;
   place-items: center;
-  padding: 24px;
 }
 
 .card {
