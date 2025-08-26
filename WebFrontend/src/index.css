@@ -85,10 +85,10 @@ input, button, select, textarea {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* left-align content */
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 16px 12px;
+  padding: 16px 20px; /* add a touch more left padding for visual balance */
   position: sticky; /* stays at the top of scroll */
   top: 0;
   z-index: 10;
