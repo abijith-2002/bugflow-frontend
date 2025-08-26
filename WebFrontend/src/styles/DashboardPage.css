@@ -16,10 +16,16 @@
   color: var(--text);
   font-size: 24px;
   padding-bottom: 16px;
-  position: relative;
+  width: 100%;
 }
 
-.dashboard-header h2::after {
+/* Horizontal rule under Projects title */
+.dashboard-header {
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.dashboard-header::after {
   content: '';
   position: absolute;
   bottom: 0;
