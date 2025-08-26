@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/DashboardPage.css';
-import { buildUrl } from '../api';
+import { buildUrl, apiPost } from '../api';
 import { getApiBaseUrl } from '../apiConfig';
 
 const THEME_COLORS = [
@@ -16,7 +16,7 @@ const THEME_COLORS = [
 
 // PUBLIC_INTERFACE
 export default function DashboardPage() {
-  /** Dashboard: fetches projects from backend and displays them. Also includes a modal stub for creating projects. */
+  /** Dashboard: fetches projects from backend and displays them. Also includes a modal form for creating projects via POST /projects. */
   const [showModal, setShowModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectKey, setProjectKey] = useState('');
@@ -26,55 +26,58 @@ export default function DashboardPage() {
   const [listError, setListError] = useState('');
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const apiBase = getApiBaseUrl();
 
-  // Fetch projects from backend /projects on mount and when API base URL changes
+  // Extracted loader to reuse after create
+  const loadProjects = async (signal) => {
+    setLoading(true);
+    setListError('');
+    try {
+      const resp = await fetch(buildUrl('/projects'), { method: 'GET', signal });
+      if (!resp.ok) {
+        const text = await resp.text();
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch { /* ignore */ }
+        const message = (data && (data.detail || data.message || data.error)) || `Failed to load projects (${resp.status})`;
+        throw new Error(message);
+      }
+      const data = await resp.json();
+      // Normalize to expected fields with safe fallbacks
+      const normalized = Array.isArray(data) ? data.map(p => ({
+        id: p.id ?? String(Math.random()),
+        name: p.name ?? 'Untitled',
+        description: p.description ?? '',
+        created_at: p.created_at ?? null,
+      })) : [];
+      setProjects(normalized);
+    } catch (err) {
+      setListError(err?.message || 'Failed to load projects');
+      setProjects([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch projects on mount and when API base URL changes
   useEffect(() => {
     let mounted = true;
     const controller = new AbortController();
-
-    async function load() {
-      setLoading(true);
-      setListError('');
+    (async () => {
       try {
-        const resp = await fetch(buildUrl('/projects'), { method: 'GET', signal: controller.signal });
-        if (!resp.ok) {
-          const text = await resp.text();
-          let data = null;
-          try { data = text ? JSON.parse(text) : null; } catch { /* ignore */ }
-          const message = (data && (data.detail || data.message || data.error)) || `Failed to load projects (${resp.status})`;
-          throw new Error(message);
-        }
-        const data = await resp.json();
-        if (mounted) {
-          // Normalize to expected fields with safe fallbacks
-          const normalized = Array.isArray(data) ? data.map(p => ({
-            id: p.id ?? String(Math.random()),
-            name: p.name ?? 'Untitled',
-            description: p.description ?? '',
-            created_at: p.created_at ?? null,
-          })) : [];
-          setProjects(normalized);
-        }
-      } catch (err) {
-        if (mounted) {
-          setListError(err?.message || 'Failed to load projects');
-          setProjects([]);
-        }
+        await loadProjects(controller.signal);
       } finally {
-        if (mounted) setLoading(false);
+        if (!mounted) controller.abort();
       }
-    }
-
-    load();
+    })();
     return () => {
       mounted = false;
       controller.abort();
     };
   }, [apiBase]);
 
-  const handleCreateProject = (e) => {
+  const handleCreateProject = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -88,11 +91,23 @@ export default function DashboardPage() {
       return;
     }
 
-    // Placeholder for create: will be wired to POST /projects in a subsequent step
-    // Keeping UI consistent with current template behavior
-    console.log('Creating project:', { projectName, projectKey, selectedColor });
-    setShowModal(false);
-    resetForm();
+    // According to backend spec, POST /projects expects: { name, description? }
+    // We will pass name and use `${projectKey}: ${projectName}` as description for now.
+    setSubmitting(true);
+    try {
+      await apiPost('/projects', {
+        name: projectName.trim(),
+        description: `${projectKey.trim()}: ${projectName.trim()}`,
+      });
+      // Close modal, reset form, and refresh list
+      setShowModal(false);
+      resetForm();
+      await loadProjects(); // no signal, quick refresh
+    } catch (err) {
+      setError(err?.message || 'Failed to create project');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const resetForm = () => {
@@ -162,7 +177,7 @@ export default function DashboardPage() {
           >
             <h2 id="new-project-title" className="modal-title">Create New Project</h2>
 
-            {error && <div className="error">{error}</div>}
+            {error && <div className="error" role="alert">{error}</div>}
 
             <form className="form" onSubmit={handleCreateProject}>
               <div>
@@ -221,8 +236,8 @@ export default function DashboardPage() {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn">
-                  Create Project
+                <button type="submit" className="btn" disabled={submitting}>
+                  {submitting ? 'Creating...' : 'Create Project'}
                 </button>
               </div>
             </form>
