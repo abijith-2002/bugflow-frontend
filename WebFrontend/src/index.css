@@ -92,6 +92,11 @@ input, button, select, textarea {
   position: sticky; /* stays at the top of scroll */
   top: 0;
   z-index: 10;
+  gap: 12px;
+}
+
+.spacer {
+  flex: 1 1 auto;
 }
 
 /* Title typography (used by global header) */
@@ -100,6 +105,96 @@ input, button, select, textarea {
   font-weight: 700;
   color: var(--nord6);
   margin: 0;
+}
+
+/* Status indicator in header */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.status-indicator .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  background: var(--danger);
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.15) inset;
+}
+
+.status-indicator.online .dot {
+  background: var(--nord14);
+}
+.status-indicator.offline .dot {
+  background: var(--nord11);
+}
+
+.status-indicator:hover {
+  border-color: var(--primary);
+}
+
+/* Modal styles */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(46, 52, 64, 0.6);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.45);
+}
+
+.modal-title {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--nord6);
+}
+
+.modal-subtitle {
+  margin: 0 0 12px;
+  color: var(--text-dimmer);
+  font-size: 13px;
+}
+
+.modal-hint {
+  margin-top: 12px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.hint-sep {
+  margin: 0 6px;
+  opacity: 0.6;
+}
+
+.status-text {
+  font-weight: 600;
 }
 
 h1, h2, h3, h4, h5, h6 {

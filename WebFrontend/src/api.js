@@ -1,9 +1,10 @@
-export const API_BASE_URL = 'http://localhost:3001';
+import { getApiBaseUrl } from './apiConfig';
 
 // PUBLIC_INTERFACE
 export async function apiPost(path, body) {
   /** Sends a JSON POST request to the backend and returns parsed JSON or throws an error with message. */
-  const resp = await fetch(`${API_BASE_URL}${path}`, {
+  const base = getApiBaseUrl();
+  const resp = await fetch(`${base}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body ?? {}),
@@ -13,7 +14,7 @@ export async function apiPost(path, body) {
   let data = null;
   try {
     data = text ? JSON.parse(text) : null;
-  } catch (_) {
+  } catch {
     // ignore parse errors, will handle below
   }
 
@@ -27,4 +28,11 @@ export async function apiPost(path, body) {
     throw error;
   }
   return data;
+}
+
+// PUBLIC_INTERFACE
+export function buildUrl(path) {
+  /** Returns the full URL for the given API path using the current base. */
+  const base = getApiBaseUrl();
+  return `${base}${path}`;
 }
