@@ -64,7 +64,7 @@ input, button, select, textarea {
 
 /* Simple centered layout */
 .app-shell {
-  min-height: 100%;
+  min-height: calc(100% - 72px); /* account for global header height */
   display: grid;
   place-items: center;
   padding: 24px;
@@ -80,16 +80,26 @@ input, button, select, textarea {
   box-shadow: 0 8px 24px rgba(0,0,0,0.25);
 }
 
-/* App header inside the auth card */
-.app-header {
-  text-align: center;
-  margin-bottom: 12px;
+/* Global app header fixed at top of page area (not inside card) */
+.global-app-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 12px;
+  position: sticky; /* stays at the top of scroll */
+  top: 0;
+  z-index: 10;
 }
+
+/* Title typography (used by global header) */
 .app-title {
   font-size: 22px;
   font-weight: 700;
   color: var(--nord6);
-  margin: 0 0 4px 0;
+  margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {

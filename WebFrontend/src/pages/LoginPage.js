@@ -36,11 +36,6 @@ export default function LoginPage() {
       <h2>Welcome back</h2>
       <p className="subtitle">Login with your credentials</p>
 
-      <div className="centered-cta">
-        <span className="subtitle">No account?</span>
-        <Link className="link" to="/signup">Create one</Link>
-      </div>
-
       {error ? <div className="error">{error}</div> : null}
       {authed ? (
         <div className="success" style={{ marginBottom: 12 }}>
@@ -79,6 +74,12 @@ export default function LoginPage() {
         <button className="btn" type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
+
+        {/* Prompt directly below the button, centered */}
+        <div className="centered-cta">
+          <span className="subtitle">No account?</span>
+          <Link className="link" to="/signup">Create one</Link>
+        </div>
       </form>
     </div>
   );

@@ -9,11 +9,13 @@ function App() {
   /** Root app rendering auth routes. */
   return (
     <BrowserRouter>
+      {/* Global app header at the very top of the page */}
+      <header className="global-app-header">
+        <h1 className="app-title">BugFlow</h1>
+      </header>
+
       <div className="app-shell">
         <div className="card">
-          <header className="app-header">
-            <h1 className="app-title">BugFlow</h1>
-          </header>
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />

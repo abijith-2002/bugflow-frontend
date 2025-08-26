@@ -36,11 +36,6 @@ export default function SignUpPage() {
       <h2>Create your account</h2>
       <p className="subtitle">Use your email and a strong password</p>
 
-      <div className="centered-cta">
-        <span className="subtitle">Already have an account?</span>
-        <Link className="link" to="/login">Login</Link>
-      </div>
-
       {error ? <div className="error">{error}</div> : null}
       {result ? (
         <div className="success" style={{ marginBottom: 12 }}>
@@ -80,6 +75,12 @@ export default function SignUpPage() {
         <button className="btn" type="submit" disabled={loading}>
           {loading ? 'Creating account...' : 'Sign up'}
         </button>
+
+        {/* Prompt directly below the button, centered */}
+        <div className="centered-cta">
+          <span className="subtitle">Already have an account?</span>
+          <Link className="link" to="/login">Login</Link>
+        </div>
       </form>
     </div>
   );
