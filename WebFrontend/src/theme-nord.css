@@ -1,0 +1,192 @@
+/* Nord Theme Color Palette */
+/* Official color palette from nordtheme.com */
+
+:root {
+  /* Polar Night (Dark Base Colors) */
+  --nord0: #2e3440;   /* Dark background */
+  --nord1: #3b4252;   /* Secondary dark background */
+  --nord2: #434c5e;   /* Tertiary dark background */
+  --nord3: #4c566a;   /* Comments, inactive elements */
+
+  /* Snow Storm (Light Colors) */
+  --nord4: #d8dee9;   /* Dark text on light backgrounds */
+  --nord5: #e5e9f0;   /* Medium text, secondary text */
+  --nord6: #eceff4;   /* Light text, primary text on dark backgrounds */
+
+  /* Frost (Bluish Accent Colors) */
+  --nord7: #8fbcbb;   /* Teal */
+  --nord8: #88c0d0;   /* Light blue */
+  --nord9: #81a1c1;   /* Medium blue */
+  --nord10: #5e81ac;  /* Dark blue */
+
+  /* Aurora (Colorful Accent Colors) */
+  --nord11: #bf616a;  /* Red */
+  --nord12: #d08770;  /* Orange */
+  --nord13: #ebcb8b;  /* Yellow */
+  --nord14: #a3be8c;  /* Green */
+  --nord15: #b48ead;  /* Purple */
+
+  /* Semantic Color Aliases for Application Use */
+  
+  /* Background Colors */
+  --bg-primary: var(--nord0);
+  --bg-secondary: var(--nord1);
+  --bg-tertiary: var(--nord2);
+  --bg-elevated: var(--nord1);
+  --bg-overlay: var(--nord2);
+  --bg-light: var(--nord6);
+  --bg-light-secondary: var(--nord5);
+  
+  /* Text Colors */
+  --text-primary: var(--nord6);
+  --text-secondary: var(--nord5);
+  --text-tertiary: var(--nord4);
+  --text-muted: var(--nord3);
+  --text-inverse: var(--nord0);
+  --text-dark: var(--nord0);
+  
+  /* Border Colors */
+  --border-primary: var(--nord3);
+  --border-secondary: var(--nord2);
+  --border-light: var(--nord4);
+  --border-focus: var(--nord8);
+  
+  /* State Colors */
+  --color-success: var(--nord14);
+  --color-warning: var(--nord13);
+  --color-error: var(--nord11);
+  --color-info: var(--nord8);
+  
+  /* Interactive Colors */
+  --color-primary: var(--nord8);
+  --color-primary-hover: var(--nord9);
+  --color-primary-active: var(--nord10);
+  --color-secondary: var(--nord7);
+  --color-accent: var(--nord15);
+  
+  /* Button Colors */
+  --btn-primary-bg: var(--nord8);
+  --btn-primary-text: var(--nord0);
+  --btn-primary-hover: var(--nord9);
+  --btn-secondary-bg: var(--nord3);
+  --btn-secondary-text: var(--nord6);
+  --btn-secondary-hover: var(--nord2);
+  
+  /* Form Colors */
+  --input-bg: var(--nord1);
+  --input-border: var(--nord3);
+  --input-text: var(--nord6);
+  --input-placeholder: var(--nord4);
+  --input-focus-border: var(--nord8);
+  --input-error-border: var(--nord11);
+  
+  /* Card/Panel Colors */
+  --card-bg: var(--nord1);
+  --card-border: var(--nord3);
+  --card-shadow: rgba(46, 52, 64, 0.3);
+  
+  /* Navigation Colors */
+  --nav-bg: var(--nord0);
+  --nav-border: var(--nord3);
+  --nav-link: var(--nord6);
+  --nav-link-hover: var(--nord8);
+  --nav-link-active: var(--nord9);
+}
+
+/* Light theme variant (optional) */
+[data-theme="light"] {
+  /* Background Colors */
+  --bg-primary: var(--nord6);
+  --bg-secondary: var(--nord5);
+  --bg-tertiary: var(--nord4);
+  --bg-elevated: var(--nord6);
+  --bg-overlay: var(--nord5);
+  
+  /* Text Colors */
+  --text-primary: var(--nord0);
+  --text-secondary: var(--nord1);
+  --text-tertiary: var(--nord2);
+  --text-muted: var(--nord3);
+  --text-inverse: var(--nord6);
+  
+  /* Border Colors */
+  --border-primary: var(--nord4);
+  --border-secondary: var(--nord5);
+  
+  /* Form Colors */
+  --input-bg: var(--nord6);
+  --input-border: var(--nord4);
+  --input-text: var(--nord0);
+  --input-placeholder: var(--nord3);
+  
+  /* Button Colors */
+  --btn-secondary-bg: var(--nord5);
+  --btn-secondary-text: var(--nord0);
+  --btn-secondary-hover: var(--nord4);
+  
+  /* Card/Panel Colors */
+  --card-bg: var(--nord6);
+  --card-border: var(--nord4);
+  --card-shadow: rgba(216, 222, 233, 0.3);
+  
+  /* Navigation Colors */
+  --nav-bg: var(--nord6);
+  --nav-border: var(--nord4);
+  --nav-link: var(--nord0);
+  --nav-link-hover: var(--nord8);
+  --nav-link-active: var(--nord9);
+}
+
+/* Utility classes for Nord colors */
+.nord0 { color: var(--nord0); }
+.nord1 { color: var(--nord1); }
+.nord2 { color: var(--nord2); }
+.nord3 { color: var(--nord3); }
+.nord4 { color: var(--nord4); }
+.nord5 { color: var(--nord5); }
+.nord6 { color: var(--nord6); }
+.nord7 { color: var(--nord7); }
+.nord8 { color: var(--nord8); }
+.nord9 { color: var(--nord9); }
+.nord10 { color: var(--nord10); }
+.nord11 { color: var(--nord11); }
+.nord12 { color: var(--nord12); }
+.nord13 { color: var(--nord13); }
+.nord14 { color: var(--nord14); }
+.nord15 { color: var(--nord15); }
+
+/* Background utility classes */
+.bg-nord0 { background-color: var(--nord0); }
+.bg-nord1 { background-color: var(--nord1); }
+.bg-nord2 { background-color: var(--nord2); }
+.bg-nord3 { background-color: var(--nord3); }
+.bg-nord4 { background-color: var(--nord4); }
+.bg-nord5 { background-color: var(--nord5); }
+.bg-nord6 { background-color: var(--nord6); }
+.bg-nord7 { background-color: var(--nord7); }
+.bg-nord8 { background-color: var(--nord8); }
+.bg-nord9 { background-color: var(--nord9); }
+.bg-nord10 { background-color: var(--nord10); }
+.bg-nord11 { background-color: var(--nord11); }
+.bg-nord12 { background-color: var(--nord12); }
+.bg-nord13 { background-color: var(--nord13); }
+.bg-nord14 { background-color: var(--nord14); }
+.bg-nord15 { background-color: var(--nord15); }
+
+/* Border utility classes */
+.border-nord0 { border-color: var(--nord0); }
+.border-nord1 { border-color: var(--nord1); }
+.border-nord2 { border-color: var(--nord2); }
+.border-nord3 { border-color: var(--nord3); }
+.border-nord4 { border-color: var(--nord4); }
+.border-nord5 { border-color: var(--nord5); }
+.border-nord6 { border-color: var(--nord6); }
+.border-nord7 { border-color: var(--nord7); }
+.border-nord8 { border-color: var(--nord8); }
+.border-nord9 { border-color: var(--nord9); }
+.border-nord10 { border-color: var(--nord10); }
+.border-nord11 { border-color: var(--nord11); }
+.border-nord12 { border-color: var(--nord12); }
+.border-nord13 { border-color: var(--nord13); }
+.border-nord14 { border-color: var(--nord14); }
+.border-nord15 { border-color: var(--nord15); }
