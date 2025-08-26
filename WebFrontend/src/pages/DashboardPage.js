@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const [projectName, setProjectName] = useState('');
   const [projectKey, setProjectKey] = useState('');
   const [selectedColor, setSelectedColor] = useState(THEME_COLORS[0]);
+  const [projectDescription, setProjectDescription] = useState('');
 
   const [error, setError] = useState('');
   const [listError, setListError] = useState('');
@@ -102,12 +103,12 @@ export default function DashboardPage() {
     }
 
     // According to backend spec, POST /projects expects: { name, description? }
-    // We will pass name and use `${projectKey}: ${projectName}` as description for now.
+    // Send the provided name and optional description from the form.
     setSubmitting(true);
     try {
       await apiPost('/projects', {
         name: projectName.trim(),
-        description: `${projectKey.trim()}: ${projectName.trim()}`,
+        description: projectDescription.trim() || null,
       });
       // Close modal, reset form, and refresh list
       setShowModal(false);
@@ -124,6 +125,7 @@ export default function DashboardPage() {
     setProjectName('');
     setProjectKey('');
     setSelectedColor(THEME_COLORS[0]);
+    setProjectDescription('');
     setError('');
   };
 
@@ -217,6 +219,18 @@ export default function DashboardPage() {
                   required
                 />
                 <span className="input-hint">2-10 characters, uppercase</span>
+              </div>
+
+              <div>
+                <label className="label" htmlFor="project-description">Project Description (optional)</label>
+                <textarea
+                  id="project-description"
+                  className="input"
+                  rows={3}
+                  value={projectDescription}
+                  onChange={(e) => setProjectDescription(e.target.value)}
+                  placeholder="Short summary of the project"
+                />
               </div>
 
               <div>
