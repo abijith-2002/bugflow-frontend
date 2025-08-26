@@ -73,7 +73,10 @@ export default function DashboardPage() {
           <div 
             key={project.id} 
             className="project-card"
-            style={{ borderColor: project.color }}
+            style={{ 
+              borderColor: project.color,
+              backgroundColor: `${project.color}10` // Very subtle background tint
+            }}
           >
             <h3>{project.title}</h3>
             <div className="project-stats">
