@@ -67,7 +67,6 @@ input, button, select, textarea {
   min-height: calc(100% - 72px); /* account for global header height */
   display: grid;
   place-items: center;
-  padding: 24px;
 }
 
 .card {
@@ -100,11 +99,24 @@ input, button, select, textarea {
 }
 
 /* Title typography (used by global header) */
+.app-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .app-title {
   font-size: 22px;
   font-weight: 700;
   color: var(--nord6);
   margin: 0;
+}
+
+.bug-icon {
+  filter: invert(81%) sepia(14%) saturate(1095%) hue-rotate(157deg) brightness(93%) contrast(88%);
+  flex-shrink: 0;
+  margin-right: 2px;
+  margin-top: 1px;
 }
 
 /* Status indicator in header */

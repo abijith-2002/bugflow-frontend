@@ -14,12 +14,9 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // After successful authentication, briefly show success then redirect to dashboard.
+    // After successful authentication, immediately redirect to dashboard
     if (authed) {
-      const timer = setTimeout(() => {
-        navigate('/dashboard', { replace: true });
-      }, 1000); // brief delay so user can see the success message
-      return () => clearTimeout(timer);
+      navigate('/dashboard', { replace: true });
     }
   }, [authed, navigate]);
 

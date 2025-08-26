@@ -6,6 +6,7 @@ import { apiPost } from '../api';
 export default function SignUpPage() {
   /** Sign-up screen posting to /auth/signup. On success, shows success message then redirects to login. */
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState(''); // display name
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,13 +28,20 @@ export default function SignUpPage() {
     e.preventDefault();
     setError('');
     setResult(null);
-    if (!email || !password) {
-      setError('Please provide both email and password.');
+
+    // Basic validation for presence and minimal username length
+    if (!email || !password || !username) {
+      setError('Please provide email, username and password.');
       return;
     }
+    if (username.trim().length < 2) {
+      setError('Username must be at least 2 characters.');
+      return;
+    }
+
     setLoading(true);
     try {
-      const payload = { email, password };
+      const payload = { email, password, username };
       await apiPost('/auth/signup', payload);
       // Regardless of backend message/fields, enforce the new UX requirements:
       setResult({ _success: true, message: 'User registered successfully' });
@@ -47,7 +55,7 @@ export default function SignUpPage() {
   return (
     <div>
       <h2>Create your account</h2>
-      <p className="subtitle">Use your email and a strong password</p>
+      <p className="subtitle">Use your email, a display name, and a strong password</p>
 
       {error ? <div className="error">{error}</div> : null}
       {result && result._success ? (
@@ -67,6 +75,21 @@ export default function SignUpPage() {
             onChange={(e) => setEmail(e.target.value)}
             autoComplete="email"
             required
+          />
+        </div>
+        <div>
+          <label className="label" htmlFor="username">Username (display name)</label>
+          <input
+            id="username"
+            className="input"
+            type="text"
+            placeholder="Your display name"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            autoComplete="nickname"
+            required
+            minLength={2}
+            maxLength={60}
           />
         </div>
         <div>

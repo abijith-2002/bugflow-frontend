@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import bugIcon from './assets/bug.svg';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import DashboardPage from './pages/DashboardPage';
 import { getApiBaseUrl, setApiBaseUrl, pingHealth } from './apiConfig';
 
 // PUBLIC_INTERFACE
@@ -98,7 +100,17 @@ function App() {
     <BrowserRouter>
       {/* Global app header at the very top of the page */}
       <header className="global-app-header">
-        <h1 className="app-title">BugFlow</h1>
+        <div className="app-title-wrapper">
+          <img 
+            src={bugIcon} 
+            alt="" 
+            className="bug-icon" 
+            width="24" 
+            height="24"
+            aria-hidden="true"
+          />
+          <h1 className="app-title">BugFlow</h1>
+        </div>
 
         {/* Right-aligned status indicator */}
         <div className="spacer" />
@@ -116,14 +128,13 @@ function App() {
       </header>
 
       <div className="app-shell">
-        <div className="card">
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<div className="card"><LoginPage /></div>} />
+          <Route path="/signup" element={<div className="card"><SignUpPage /></div>} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
       </div>
 
       {/* Centered Modal for API Base URL */}
