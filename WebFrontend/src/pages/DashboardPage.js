@@ -68,21 +68,14 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      <div className="project-list">
+      <div className="project-grid">
         {projects.map(project => (
           <div 
             key={project.id} 
-            className="project-row"
+            className="project-card"
             style={{ borderColor: project.color }}
           >
-            <div className="project-info">
-              <div 
-                className="project-color-indicator" 
-                style={{ backgroundColor: project.color }}
-                aria-hidden="true"
-              />
-              <h3>{project.title}</h3>
-            </div>
+            <h3>{project.title}</h3>
             <div className="project-stats">
               <div className="stat">
                 <span className="stat-label">Bugs</span>
