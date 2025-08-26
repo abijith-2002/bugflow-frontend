@@ -1,104 +1,239 @@
-/* CSS Variables for Theme Management */
+/* Import Reddit Sans font */
+@import url('https://fonts.googleapis.com/css2?family=Reddit+Sans:wght@300;400;500;600;700&display=swap');
+
+/* Nord theme tokens */
 :root {
-  /* Light theme colors */
+  --nord0: #2E3440;
+  --nord1: #3B4252;
+  --nord2: #434C5E;
+  --nord3: #4C566A;
+  --nord4: #D8DEE9;
+  --nord5: #E5E9F0;
+  --nord6: #ECEFF4;
+  --nord7: #8FBCBB;
+  --nord8: #88C0D0;
+  --nord9: #81A1C1;
+  --nord10: #5E81AC;
+  --nord11: #BF616A;
+  --nord12: #D08770;
+  --nord13: #EBCB8B;
+  --nord14: #A3BE8C;
+  --nord15: #B48EAD;
+
+  /* default to dark */
+  --bg-primary: var(--nord0);
+  --bg-secondary: var(--nord1);
+  --text-primary: var(--nord6);
+  --text-muted: var(--nord4);
+  --border-color: rgba(236, 239, 244, 0.12);
+  --button-bg: var(--nord10);
+  --button-text: #ffffff;
+  --input-bg: var(--nord1);
+  --input-text: var(--nord6);
+  --input-placeholder: var(--nord4);
+  --link: var(--nord8);
+}
+
+[data-theme="light"] {
   --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --text-primary: #282c34;
-  --text-secondary: #61dafb;
-  --border-color: #e9ecef;
-  --button-bg: #007bff;
+  --bg-secondary: var(--nord6);
+  --text-primary: #1a1a1a;
+  --text-muted: #3b3b3b;
+  --border-color: #e5e9f0;
+  --button-bg: var(--nord10);
   --button-text: #ffffff;
+  --input-bg: #ffffff;
+  --input-text: #1a1a1a;
+  --input-placeholder: #6b7280;
+  --link: var(--nord10);
 }
 
-[data-theme="dark"] {
-  /* Dark theme colors */
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #282c34;
-  --text-primary: #ffffff;
-  --text-secondary: #61dafb;
-  --border-color: #404040;
-  --button-bg: #0056b3;
-  --button-text: #ffffff;
+* {
+  box-sizing: border-box;
 }
 
-.App {
-  text-align: center;
-  background-color: var(--bg-primary);
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Reddit Sans', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji','Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+  background: var(--bg-primary);
   color: var(--text-primary);
-  min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: var(--bg-secondary);
+/* App layout */
+.App {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease;
-  position: relative;
 }
 
-.App-link {
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
+.nf-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.nf-brand {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.nf-nav-links {
+  display: flex;
+  gap: 12px;
+}
+
+.nf-link {
+  color: var(--link);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.nf-link:hover {
+  background: rgba(136, 192, 208, 0.12);
+}
+
+.nf-link.active {
+  border-color: var(--border-color);
 }
 
 .theme-toggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
   background-color: var(--button-bg);
   color: var(--button-text);
   border: none;
   border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
+  padding: 8px 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .theme-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  opacity: 0.9;
+  opacity: 0.95;
+  transform: translateY(-1px);
 }
 
-.theme-toggle:active {
-  transform: translateY(0);
+.nf-container {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.nf-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
 }
 
-/* Responsive design for mobile */
-@media (max-width: 768px) {
-  .theme-toggle {
-    top: 10px;
-    right: 10px;
-    padding: 8px 16px;
-    font-size: 12px;
-  }
+.nf-title {
+  margin: 0 0 4px 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.nf-subtitle {
+  margin: 0 0 18px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.nf-form {
+  display: grid;
+  gap: 12px;
+}
+
+.nf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nf-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.nf-input {
+  padding: 12px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--input-text);
+  outline: none;
+}
+
+.nf-input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.nf-btn {
+  appearance: none;
+  border: none;
+  background: var(--button-bg);
+  color: var(--button-text);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter .2s ease, transform .05s ease;
+}
+
+.nf-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.nf-btn:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.nf-error {
+  background: rgba(191, 97, 106, 0.12);
+  color: var(--nord11);
+  border: 1px solid rgba(191, 97, 106, 0.35);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.nf-success {
+  background: rgba(163, 190, 140, 0.12);
+  color: var(--nord14);
+  border: 1px solid rgba(163, 190, 140, 0.35);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.nf-footer {
+  text-align: center;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  padding: 12px 16px;
+  font-size: 12px;
+}
+
+/* small helpers */
+.nf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
