@@ -1,5 +1,5 @@
 .dashboard {
-  padding: 0 24px;
+  padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .dashboard-header h2 {
@@ -24,40 +24,17 @@
 
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 24px;
-  width: 100%;
-}
-
-/* Responsive breakpoints for project grid */
-@media (min-width: 640px) {
-  .project-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .project-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1280px) {
-  .project-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .project-card {
   background: var(--surface);
-  border: 2px solid transparent;
+  border: 2px solid var(--border);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 }
 
 .project-card:hover {
