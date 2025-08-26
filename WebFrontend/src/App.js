@@ -117,15 +117,13 @@ function App() {
       </header>
 
       <div className="app-shell">
-        <div className="card">
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<div className="card"><LoginPage /></div>} />
+          <Route path="/signup" element={<div className="card"><SignUpPage /></div>} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
       </div>
 
       {/* Centered Modal for API Base URL */}
