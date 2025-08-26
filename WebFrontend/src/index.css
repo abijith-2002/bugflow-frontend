@@ -113,7 +113,7 @@ input, button, select, textarea {
 }
 
 .bug-icon {
-  color: var(--nord8);
+  filter: invert(81%) sepia(14%) saturate(1095%) hue-rotate(157deg) brightness(93%) contrast(88%);
   flex-shrink: 0;
   margin-right: 2px;
   margin-top: 1px;

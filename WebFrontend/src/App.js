@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import bugIcon from './assets/bug.svg';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
 import LoginPage from './pages/LoginPage';
@@ -100,28 +101,14 @@ function App() {
       {/* Global app header at the very top of the page */}
       <header className="global-app-header">
         <div className="app-title-wrapper">
-          <svg 
+          <img 
+            src={bugIcon} 
+            alt="" 
             className="bug-icon" 
             width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
+            height="24"
             aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="6" />
-            <path d="M12 3V6" />
-            <path d="M12 18v3" />
-            <path d="M8 9l-3-3" />
-            <path d="M16 9l3-3" />
-            <path d="M8 15l-3 3" />
-            <path d="M16 15l3 3" />
-            <circle cx="10" cy="10" r="1" fill="currentColor" />
-            <circle cx="14" cy="10" r="1" fill="currentColor" />
-          </svg>
+          />
           <h1 className="app-title">BugFlow</h1>
         </div>
 
