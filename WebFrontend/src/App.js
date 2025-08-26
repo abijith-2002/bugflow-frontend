@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './index.css';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
@@ -11,16 +11,15 @@ function App() {
     <BrowserRouter>
       <div className="app-shell">
         <div className="card">
+          <header className="app-header">
+            <h1 className="app-title">BugFlow</h1>
+          </header>
           <Routes>
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
-          <div className="row" style={{ marginTop: 12 }}>
-            <Link className="link" to="/login">Login</Link>
-            <Link className="link" to="/signup">Sign up</Link>
-          </div>
         </div>
       </div>
     </BrowserRouter>

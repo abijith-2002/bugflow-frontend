@@ -24,6 +24,7 @@
   --surface-alt: var(--nord2);
   --text: var(--nord6);
   --text-dim: var(--nord4);
+  --text-dimmer: rgba(216, 222, 233, 0.6);
   --primary: var(--nord8);
   --primary-strong: var(--nord10);
   --danger: var(--nord11);
@@ -56,7 +57,7 @@ input, button, select, textarea {
   color: var(--text);
 }
 ::placeholder {
-  color: var(--text-dim);
+  color: var(--text-dimmer); /* lighter placeholder */
   opacity: 1;
   font: inherit !important;
 }
@@ -77,6 +78,18 @@ input, button, select, textarea {
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+/* App header inside the auth card */
+.app-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+.app-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--nord6);
+  margin: 0 0 4px 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -170,3 +183,16 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: none;
 }
 .link:hover { text-decoration: underline; }
+
+/* Centered prompts above/below forms */
+.centered-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.centered-cta .subtitle {
+  margin: 0;
+}

@@ -35,6 +35,12 @@ export default function LoginPage() {
     <div>
       <h2>Welcome back</h2>
       <p className="subtitle">Login with your credentials</p>
+
+      <div className="centered-cta">
+        <span className="subtitle">No account?</span>
+        <Link className="link" to="/signup">Create one</Link>
+      </div>
+
       {error ? <div className="error">{error}</div> : null}
       {authed ? (
         <div className="success" style={{ marginBottom: 12 }}>
@@ -74,11 +80,6 @@ export default function LoginPage() {
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
-
-      <div className="row" style={{ marginTop: 12 }}>
-        <span className="subtitle" style={{ margin: 0 }}>No account?</span>
-        <Link className="link" to="/signup">Create one</Link>
-      </div>
     </div>
   );
 }
