@@ -105,16 +105,22 @@ function App() {
             width="24" 
             height="24" 
             viewBox="0 0 24 24" 
-            fill="var(--nord8)"
-            stroke="var(--nord8)" 
-            strokeWidth="1.5" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
             strokeLinecap="round" 
             strokeLinejoin="round"
             aria-hidden="true"
-            role="img"
-            aria-label="BugFlow logo"
           >
-            <path d="M12 6a2 2 0 0 1 2 2v8a2 2 0 1 1-4 0V8a2 2 0 0 1 2-2zm0-3a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1zm7 9a1 1 0 1 1 2 0v1a6 6 0 0 1-6 6h-6a6 6 0 0 1-6-6v-1a1 1 0 1 1 2 0v1a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-1zm-9.75-3.75a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm6.5 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
+            <circle cx="12" cy="12" r="6" />
+            <path d="M12 3V6" />
+            <path d="M12 18v3" />
+            <path d="M8 9l-3-3" />
+            <path d="M16 9l3-3" />
+            <path d="M8 15l-3 3" />
+            <path d="M16 15l3 3" />
+            <circle cx="10" cy="10" r="1" fill="currentColor" />
+            <circle cx="14" cy="10" r="1" fill="currentColor" />
           </svg>
           <h1 className="app-title">BugFlow</h1>
         </div>
