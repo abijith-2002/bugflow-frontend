@@ -8,7 +8,14 @@ This repository contains BugFlow Frontend and Backend.
    - (optional) REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_KEY if you use frontend Supabase SDK.
    - (optional) REACT_APP_SITE_URL=http://localhost:3000
 2) Ensure your Supabase Authentication URL configuration allows http://localhost:3000/** and set Site URL to your dev site.
-3) `cd WebFrontend && npm install && npm start`
+3) Install dependencies and start:
+   - cd WebFrontend
+   - npm install
+   - npm start
+
+Important: The frontend imports the Supabase JS SDK. Make sure @supabase/supabase-js installs correctly during npm install. If you see "Module not found: Can't resolve '@supabase/supabase-js'", run:
+- cd WebFrontend && npm install @supabase/supabase-js
+
 4) The frontend includes an /auth/callback route for email/OAuth redirects if using Supabase JS SDK.
 
 Note: The frontend now supports changing the backend API base URL at runtime. Use the status indicator at the top-right to open a dialog and update the URL. The value is persisted in localStorage.
