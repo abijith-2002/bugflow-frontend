@@ -1,6 +1,6 @@
 .dashboard {
   padding: 32px;
-  max-width: 2000px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
 }
@@ -26,19 +26,24 @@
 }
 
 .project-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   padding: 0 8px;
+  width: 100%;
 }
 
 .project-card {
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .project-card:hover {
@@ -47,15 +52,14 @@
 }
 
 .project-card h3 {
-  margin: 0 0 16px;
+  margin: 0;
   color: var(--text);
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .project-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  display: flex;
+  gap: 24px;
 }
 
 .stat {
@@ -119,20 +123,20 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 1400px) {
-  .project-grid {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  }
-}
-
 @media (max-width: 768px) {
   .dashboard {
     padding: 20px 16px;
   }
   
-  .project-grid {
-    grid-template-columns: 1fr;
+  .project-card {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 16px;
+  }
+  
+  .project-stats {
+    width: 100%;
+    justify-content: space-around;
   }
   
   .dashboard-header {
