@@ -1,13 +1,136 @@
+/* Import theme and font files */
+@import './fonts.css';
+@import './theme-nord.css';
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Global form styles using Nord theme */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: var(--font-size-base);
+  font-family: var(--font-primary);
+  color: var(--input-text);
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 0.5rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 3px rgba(136, 192, 208, 0.1);
+}
+
+.form-input.error {
+  border-color: var(--input-error-border);
+}
+
+.form-input::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* Button styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-primary);
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--btn-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--btn-secondary-hover);
+}
+
+/* Card styles */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px var(--card-shadow);
+}
+
+/* Error message styles */
+.error-message {
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  margin-top: 0.5rem;
+}
+
+.success-message {
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  margin-top: 0.5rem;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--input-border);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
