@@ -32,6 +32,7 @@ export default function DashboardPage() {
 
   // Extracted loader to reuse after create
   const loadProjects = async (signal) => {
+    // Ensure we start fresh each fetch
     setLoading(true);
     setListError('');
     try {
@@ -39,22 +40,39 @@ export default function DashboardPage() {
       if (!resp.ok) {
         const text = await resp.text();
         let data = null;
-        try { data = text ? JSON.parse(text) : null; } catch { /* ignore */ }
+        try { data = text ? JSON.parse(text) : null; } catch { /* ignore parse issues */ }
         const message = (data && (data.detail || data.message || data.error)) || `Failed to load projects (${resp.status})`;
         throw new Error(message);
       }
-      const data = await resp.json();
+
+      // Some backends may return empty string or null when no data; handle safely
+      // Prefer JSON parse, but fallback to empty array.
+      let data = [];
+      try {
+        data = await resp.json();
+      } catch {
+        data = [];
+      }
+
       // Normalize to expected fields with safe fallbacks
-      const normalized = Array.isArray(data) ? data.map(p => ({
-        id: p.id ?? String(Math.random()),
-        name: p.name ?? 'Untitled',
-        description: p.description ?? '',
-        created_at: p.created_at ?? null,
-      })) : [];
+      const normalized = Array.isArray(data)
+        ? data.map((p, idx) => ({
+            id: p?.id ?? `tmp-${idx}-${Math.random().toString(36).slice(2)}`,
+            name: p?.name ?? 'Untitled',
+            description: p?.description ?? '',
+            created_at: p?.created_at ?? null,
+          }))
+        : [];
+
       setProjects(normalized);
     } catch (err) {
-      setListError(err?.message || 'Failed to load projects');
-      setProjects([]);
+      // If this is due to an intentional abort (e.g., component unmount), do not surface an error
+      if (err?.name === 'AbortError' || err?.message?.toLowerCase().includes('aborted')) {
+        // Keep silent and leave current state (just stop loading)
+      } else {
+        setListError(err?.message || 'Failed to load projects');
+        setProjects([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -62,17 +80,9 @@ export default function DashboardPage() {
 
   // Fetch projects on mount and when API base URL changes
   useEffect(() => {
-    let mounted = true;
     const controller = new AbortController();
-    (async () => {
-      try {
-        await loadProjects(controller.signal);
-      } finally {
-        if (!mounted) controller.abort();
-      }
-    })();
+    loadProjects(controller.signal);
     return () => {
-      mounted = false;
       controller.abort();
     };
   }, [apiBase]);
@@ -137,6 +147,7 @@ export default function DashboardPage() {
       ) : listError ? (
         <div className="error" role="alert">{listError}</div>
       ) : emptyState ? (
+        // Graceful empty state: no error, just inform the user
         <div className="subtitle">No projects found. Create your first project to get started.</div>
       ) : (
         <div className="project-grid">
