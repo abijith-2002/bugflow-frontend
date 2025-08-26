@@ -161,8 +161,6 @@ function App() {
               </div>
             </div>
             <div className="modal-hint">
-              Current: <code className="code">{getApiBaseUrl()}</code>
-              {lastCheckedAt ? <span className="hint-sep">•</span> : null}
               {lastCheckedAt ? <span className="hint">Last check: {new Date(lastCheckedAt).toLocaleTimeString()}</span> : null}
             </div>
           </div>
