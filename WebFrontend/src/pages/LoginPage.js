@@ -1,15 +1,27 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiPost } from '../api';
 
 // PUBLIC_INTERFACE
 export default function LoginPage() {
-  /** Login screen with email/password posting to /auth/login */
+  /** Login screen with email/password posting to /auth/login. On success, show success message then redirect to dashboard. */
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [authed, setAuthed] = useState(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // After successful authentication, briefly show success then redirect to dashboard.
+    if (authed) {
+      const timer = setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 1000); // brief delay so user can see the success message
+      return () => clearTimeout(timer);
+    }
+  }, [authed, navigate]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +51,7 @@ export default function LoginPage() {
       {error ? <div className="error">{error}</div> : null}
       {authed ? (
         <div className="success" style={{ marginBottom: 12 }}>
-          Authenticated. Token received.
+          Login successful
         </div>
       ) : null}
       <form className="form" onSubmit={onSubmit}>
