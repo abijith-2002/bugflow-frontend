@@ -105,32 +105,16 @@ function App() {
             width="24" 
             height="24" 
             viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
+            fill="var(--nord8)"
+            stroke="var(--nord8)" 
+            strokeWidth="1.5" 
             strokeLinecap="round" 
             strokeLinejoin="round"
             aria-hidden="true"
+            role="img"
+            aria-label="BugFlow logo"
           >
-            {/* Body segments */}
-            <ellipse cx="12" cy="14" rx="5" ry="6" /> {/* Larger body */}
-            <circle cx="12" cy="8" r="3" /> {/* Head */}
-            
-            {/* Antennae */}
-            <path d="M10 6.5C9 5.5 8 5 7 5" />
-            <path d="M14 6.5C15 5.5 16 5 17 5" />
-            
-            {/* Legs (three pairs) */}
-            <path d="M7 11C5 11 4 12 3 13" /> {/* Front left */}
-            <path d="M17 11C19 11 20 12 21 13" /> {/* Front right */}
-            <path d="M7 14C5 14 4 14 3 15" /> {/* Middle left */}
-            <path d="M17 14C19 14 20 14 21 15" /> {/* Middle right */}
-            <path d="M7 17C5 17 4 17 3 18" /> {/* Back left */}
-            <path d="M17 17C19 17 20 17 21 18" /> {/* Back right */}
-            
-            {/* Eyes */}
-            <circle cx="10.5" cy="8" r="1" fill="currentColor" />
-            <circle cx="13.5" cy="8" r="1" fill="currentColor" />
+            <path d="M12 6a2 2 0 0 1 2 2v8a2 2 0 1 1-4 0V8a2 2 0 0 1 2-2zm0-3a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1zm7 9a1 1 0 1 1 2 0v1a6 6 0 0 1-6 6h-6a6 6 0 0 1-6-6v-1a1 1 0 1 1 2 0v1a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-1zm-9.75-3.75a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm6.5 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
           </svg>
           <h1 className="app-title">BugFlow</h1>
         </div>
