@@ -61,6 +61,8 @@ export default function DashboardPage() {
             id: p?.id ?? `tmp-${idx}-${Math.random().toString(36).slice(2)}`,
             name: p?.name ?? 'Untitled',
             description: p?.description ?? '',
+            project_key: p?.project_key ?? null,
+            colour: p?.colour ?? null,
             created_at: p?.created_at ?? null,
           }))
         : [];
@@ -102,14 +104,18 @@ export default function DashboardPage() {
       return;
     }
 
-    // According to backend spec, POST /projects expects: { name, description? }
-    // Send the provided name and optional description from the form.
+    // Build payload including new fields (project_key, colour, created_at).
     setSubmitting(true);
     try {
-      await apiPost('/projects', {
+      const payload = {
         name: projectName.trim(),
+        project_key: projectKey.trim().toUpperCase(),
         description: projectDescription.trim() || null,
-      });
+        colour: selectedColor, // hex code
+        // created_at in ISO 8601 so backend can store directly or ignore if server handles it
+        created_at: new Date().toISOString(),
+      };
+      await apiPost('/projects', payload);
       // Close modal, reset form, and refresh list
       setShowModal(false);
       resetForm();
@@ -234,8 +240,8 @@ export default function DashboardPage() {
               </div>
 
               <div>
-                <label className="label">Theme Color</label>
-                <div className="color-picker">
+                <label className="label">Project Colour</label>
+                <div className="color-picker" role="group" aria-label="Select project colour">
                   {THEME_COLORS.map(color => (
                     <button
                       key={color}
@@ -243,11 +249,12 @@ export default function DashboardPage() {
                       className={`color-option ${selectedColor === color ? 'selected' : ''}`}
                       style={{ backgroundColor: color }}
                       onClick={() => setSelectedColor(color)}
-                      aria-label={`Select color ${color}`}
+                      aria-label={`Select colour ${color}`}
                       aria-pressed={selectedColor === color}
                     />
                   ))}
                 </div>
+                <span className="input-hint">Pick a colour to visually identify the project.</span>
               </div>
 
               <div className="modal-actions">
