@@ -99,7 +99,25 @@ function App() {
     <BrowserRouter>
       {/* Global app header at the very top of the page */}
       <header className="global-app-header">
-        <h1 className="app-title">BugFlow</h1>
+        <div className="app-title-wrapper">
+          <svg 
+            className="bug-icon" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 2L8 6l4 4-4 4 4 4-4 4 4 4" />
+            <path d="M4 8h16" />
+            <path d="M4 16h16" />
+          </svg>
+          <h1 className="app-title">BugFlow</h1>
+        </div>
 
         {/* Right-aligned status indicator */}
         <div className="spacer" />

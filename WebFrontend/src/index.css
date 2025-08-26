@@ -99,11 +99,22 @@ input, button, select, textarea {
 }
 
 /* Title typography (used by global header) */
+.app-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .app-title {
   font-size: 22px;
   font-weight: 700;
   color: var(--nord6);
   margin: 0;
+}
+
+.bug-icon {
+  color: var(--nord8);
+  flex-shrink: 0;
 }
 
 /* Status indicator in header */
