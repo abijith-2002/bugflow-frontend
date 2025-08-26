@@ -112,15 +112,25 @@ function App() {
             strokeLinejoin="round"
             aria-hidden="true"
           >
-            <circle cx="12" cy="12" r="6" />
-            <path d="M12 3V6" />
-            <path d="M12 18v3" />
-            <path d="M8 9l-3-3" />
-            <path d="M16 9l3-3" />
-            <path d="M8 15l-3 3" />
-            <path d="M16 15l3 3" />
-            <circle cx="10" cy="10" r="1" fill="currentColor" />
-            <circle cx="14" cy="10" r="1" fill="currentColor" />
+            {/* Body segments */}
+            <ellipse cx="12" cy="14" rx="5" ry="6" /> {/* Larger body */}
+            <circle cx="12" cy="8" r="3" /> {/* Head */}
+            
+            {/* Antennae */}
+            <path d="M10 6.5C9 5.5 8 5 7 5" />
+            <path d="M14 6.5C15 5.5 16 5 17 5" />
+            
+            {/* Legs (three pairs) */}
+            <path d="M7 11C5 11 4 12 3 13" /> {/* Front left */}
+            <path d="M17 11C19 11 20 12 21 13" /> {/* Front right */}
+            <path d="M7 14C5 14 4 14 3 15" /> {/* Middle left */}
+            <path d="M17 14C19 14 20 14 21 15" /> {/* Middle right */}
+            <path d="M7 17C5 17 4 17 3 18" /> {/* Back left */}
+            <path d="M17 17C19 17 20 17 21 18" /> {/* Back right */}
+            
+            {/* Eyes */}
+            <circle cx="10.5" cy="8" r="1" fill="currentColor" />
+            <circle cx="13.5" cy="8" r="1" fill="currentColor" />
           </svg>
           <h1 className="app-title">BugFlow</h1>
         </div>
