@@ -1,6 +1,20 @@
-# Lightweight React Template for KAVIA
+# BugFlow Frontend (React) + Nord Theme
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+This React app uses a lightweight hash-based router and calls the FastAPI backend for authentication.
+
+Setup:
+1. Copy `.env.example` to `.env` and set:
+   - REACT_APP_API_BASE_URL=http://localhost:3001
+2. Install and run:
+   - npm install
+   - npm start
+
+Styling:
+- Uses Nord color palette and Reddit Sans (see src/theme.css).
+
+Auth:
+- Login and Signup pages call the backend at /auth/login and /auth/signup.
+- For client-side Supabase in the future, see backend/assets/supabase.md appendix.
 
 ## Features
 
