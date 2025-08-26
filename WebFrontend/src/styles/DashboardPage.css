@@ -1,5 +1,5 @@
 .dashboard {
-  padding: 32px;
+  padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -9,41 +9,32 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
-  padding: 0 8px;
+  margin-bottom: 24px;
 }
 
 .dashboard-header h2 {
   margin: 0;
   color: var(--text);
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 24px;
 }
 
 .create-project-btn {
-  min-width: 160px;
   max-width: 200px;
 }
 
 .project-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 0 8px;
-  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .project-card {
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .project-card:hover {
@@ -52,14 +43,15 @@
 }
 
 .project-card h3 {
-  margin: 0;
+  margin: 0 0 16px;
   color: var(--text);
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .project-stats {
-  display: flex;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .stat {
@@ -125,29 +117,20 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .dashboard {
-    padding: 20px 16px;
+    padding: 16px;
   }
   
-  .project-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-  
-  .project-stats {
-    width: 100%;
-    justify-content: space-around;
+  .project-grid {
+    grid-template-columns: 1fr;
   }
   
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
-    margin-bottom: 24px;
   }
   
   .create-project-btn {
-    width: 100%;
     max-width: none;
   }
 }
