@@ -73,6 +73,25 @@
   gap: 12px;
 }
 
+/* Created date should be plain text (no box) */
+.stat-inline {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+
+.stat-inline .stat-label {
+  margin: 0;
+}
+
+.stat-plain {
+  font-size: 14px;
+  color: var(--text);
+}
+
 .stat {
   display: flex;
   flex-direction: column;

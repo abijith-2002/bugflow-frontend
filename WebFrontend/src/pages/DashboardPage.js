@@ -174,14 +174,14 @@ export default function DashboardPage() {
                 title={project.project_key ? `${project.project_key} • ${project.name}` : project.name}
               >
                 <h3>{project.name}</h3>
-                {project.description ? (
-                  <p className="subtitle" style={{ marginTop: -6 }}>{project.description}</p>
-                ) : null}
+                {/* Removed project description as per new design */}
                 <div className="project-stats">
-                  <div className="stat">
+                  {/* Created date as plain inline text (no box styling) */}
+                  <div className="stat-inline">
                     <span className="stat-label">Created</span>
-                    <span className="stat-value">{createdDate}</span>
+                    <span className="stat-plain">{createdDate}</span>
                   </div>
+                  {/* Keep Bugs and Tasks metrics */}
                   <div className="stat">
                     <span className="stat-label">Bugs</span>
                     <span className="stat-value">{bugsCount}</span>
