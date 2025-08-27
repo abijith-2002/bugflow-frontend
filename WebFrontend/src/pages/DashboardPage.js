@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/DashboardPage.css';
-import { buildUrl, apiPost } from '../api';
+import { buildUrl, apiPost, apiGet, getWorkItems } from '../api';
 import { getApiBaseUrl } from '../apiConfig';
 
 const THEME_COLORS = [
