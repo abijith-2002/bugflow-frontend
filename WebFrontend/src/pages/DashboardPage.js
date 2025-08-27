@@ -60,18 +60,35 @@ export default function DashboardPage() {
         data = [];
       }
 
-      // Normalize to expected fields with safe fallbacks, including bugs/tasks counts
+      // Normalize to expected fields with safe fallbacks, including bugs/tasks counts.
+      // Backend openapi indicates 'bugs' and 'tasks' are integer aggregates. Some backends may instead return arrays.
       const normalized = Array.isArray(data)
-        ? data.map((p, idx) => ({
-            id: p?.id ?? `tmp-${idx}-${Math.random().toString(36).slice(2)}`,
-            name: p?.name ?? 'Untitled',
-            description: p?.description ?? '',
-            project_key: p?.project_key ?? null,
-            colour: p?.colour ?? null,
-            created_at: p?.created_at ?? null,
-            bugs: typeof p?.bugs === 'number' ? p.bugs : (Array.isArray(p?.bugs) ? p.bugs.length : (p?.bugs ?? 0)),
-            tasks: typeof p?.tasks === 'number' ? p.tasks : (Array.isArray(p?.tasks) ? p.tasks.length : (p?.tasks ?? 0)),
-          }))
+        ? data.map((p, idx) => {
+            const bugsCount =
+              Number.isFinite(p?.bugs)
+                ? p.bugs
+                : Array.isArray(p?.bugs)
+                ? p.bugs.length
+                : 0;
+
+            const tasksCount =
+              Number.isFinite(p?.tasks)
+                ? p.tasks
+                : Array.isArray(p?.tasks)
+                ? p.tasks.length
+                : 0;
+
+            return {
+              id: p?.id ?? `tmp-${idx}-${Math.random().toString(36).slice(2)}`,
+              name: p?.name ?? 'Untitled',
+              description: p?.description ?? '',
+              project_key: p?.project_key ?? null,
+              colour: p?.colour ?? null,
+              created_at: p?.created_at ?? null,
+              bugs: bugsCount,
+              tasks: tasksCount,
+            };
+          })
         : [];
 
       setProjects(normalized);
@@ -208,7 +225,7 @@ export default function DashboardPage() {
                     <span className="stat-plain">{createdDate}</span>
                   </div>
 
-                  {/* Bugs and Tasks aligned horizontally under the created date */}
+                  {/* Bugs and Tasks (aggregated counts from work_item: item_type='bug' | 'task') aligned horizontally under the created date */}
                   <div className="stat-row">
                     <div className="stat">
                       <span className="stat-label">Bugs</span>
