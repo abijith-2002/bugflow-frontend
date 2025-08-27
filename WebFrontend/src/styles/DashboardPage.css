@@ -69,7 +69,13 @@
 
 .project-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* Row for Bugs and Tasks boxes to sit side-by-side under the created date */
+.stat-row {
+  display: flex;
   gap: 12px;
 }
 

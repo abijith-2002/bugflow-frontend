@@ -181,14 +181,17 @@ export default function DashboardPage() {
                     <span className="stat-label">Created</span>
                     <span className="stat-plain">{createdDate}</span>
                   </div>
-                  {/* Keep Bugs and Tasks metrics */}
-                  <div className="stat">
-                    <span className="stat-label">Bugs</span>
-                    <span className="stat-value">{bugsCount}</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-label">Tasks</span>
-                    <span className="stat-value">{tasksCount}</span>
+
+                  {/* Bugs and Tasks aligned horizontally under the created date */}
+                  <div className="stat-row">
+                    <div className="stat">
+                      <span className="stat-label">Bugs</span>
+                      <span className="stat-value">{bugsCount}</span>
+                    </div>
+                    <div className="stat">
+                      <span className="stat-label">Tasks</span>
+                      <span className="stat-value">{tasksCount}</span>
+                    </div>
                   </div>
                 </div>
               </div>
