@@ -16,7 +16,12 @@ const THEME_COLORS = [
 
 // PUBLIC_INTERFACE
 export default function DashboardPage() {
-  /** Dashboard: fetches projects from backend and displays them. Also includes a modal form for creating projects via POST /projects. */
+  /**
+   * Dashboard:
+   * - Fetches projects from backend and displays cards.
+   * - Each card shows: title, creation date, bug and task counts, with border color from 'colour' column.
+   * - Includes a modal form for creating projects via POST /projects.
+   */
   const [showModal, setShowModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectKey, setProjectKey] = useState('');
@@ -33,7 +38,6 @@ export default function DashboardPage() {
 
   // Extracted loader to reuse after create
   const loadProjects = async (signal) => {
-    // Ensure we start fresh each fetch
     setLoading(true);
     setListError('');
     try {
@@ -46,8 +50,7 @@ export default function DashboardPage() {
         throw new Error(message);
       }
 
-      // Some backends may return empty string or null when no data; handle safely
-      // Prefer JSON parse, but fallback to empty array.
+      // Prefer JSON parse, but fallback to empty array if needed
       let data = [];
       try {
         data = await resp.json();
@@ -55,7 +58,7 @@ export default function DashboardPage() {
         data = [];
       }
 
-      // Normalize to expected fields with safe fallbacks
+      // Normalize to expected fields with safe fallbacks, including bugs/tasks counts
       const normalized = Array.isArray(data)
         ? data.map((p, idx) => ({
             id: p?.id ?? `tmp-${idx}-${Math.random().toString(36).slice(2)}`,
@@ -64,14 +67,15 @@ export default function DashboardPage() {
             project_key: p?.project_key ?? null,
             colour: p?.colour ?? null,
             created_at: p?.created_at ?? null,
+            bugs: typeof p?.bugs === 'number' ? p.bugs : (Array.isArray(p?.bugs) ? p.bugs.length : (p?.bugs ?? 0)),
+            tasks: typeof p?.tasks === 'number' ? p.tasks : (Array.isArray(p?.tasks) ? p.tasks.length : (p?.tasks ?? 0)),
           }))
         : [];
 
       setProjects(normalized);
     } catch (err) {
-      // If this is due to an intentional abort (e.g., component unmount), do not surface an error
       if (err?.name === 'AbortError' || err?.message?.toLowerCase().includes('aborted')) {
-        // Keep silent and leave current state (just stop loading)
+        // ignore aborts
       } else {
         setListError(err?.message || 'Failed to load projects');
         setProjects([]);
@@ -104,7 +108,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Build payload including new fields (project_key, colour, created_at).
     setSubmitting(true);
     try {
       const payload = {
@@ -112,7 +115,6 @@ export default function DashboardPage() {
         project_key: projectKey.trim().toUpperCase(),
         description: projectDescription.trim() || null,
         colour: selectedColor, // hex code
-        // created_at in ISO 8601 so backend can store directly or ignore if server handles it
         created_at: new Date().toISOString(),
       };
       await apiPost('/projects', payload);
@@ -155,34 +157,43 @@ export default function DashboardPage() {
       ) : listError ? (
         <div className="error" role="alert">{listError}</div>
       ) : emptyState ? (
-        // Graceful empty state: no error, just inform the user
         <div className="subtitle">No projects found. Create your first project to get started.</div>
       ) : (
         <div className="project-grid">
-          {projects.map(project => (
-            <div
-              key={project.id}
-              className="project-card"
-              style={{ borderColor: '#434C5E' }} /* consistent neutral border; color theme may come from project later */
-            >
-              <h3>{project.name}</h3>
-              {project.description ? (
-                <p className="subtitle" style={{ marginTop: -6 }}>{project.description}</p>
-              ) : null}
-              <div className="project-stats">
-                <div className="stat">
-                  <span className="stat-label">Created</span>
-                  <span className="stat-value">
-                    {project.created_at ? new Date(project.created_at).toLocaleDateString() : '—'}
-                  </span>
-                </div>
-                <div className="stat">
-                  <span className="stat-label">Bugs</span>
-                  <span className="stat-value">—</span>
+          {projects.map(project => {
+            const borderColor = (typeof project.colour === 'string' && project.colour.trim()) ? project.colour : '#434C5E';
+            const createdDate = project.created_at ? new Date(project.created_at).toLocaleDateString() : '—';
+            const bugsCount = Number.isFinite(project.bugs) ? project.bugs : 0;
+            const tasksCount = Number.isFinite(project.tasks) ? project.tasks : 0;
+
+            return (
+              <div
+                key={project.id}
+                className="project-card"
+                style={{ borderColor }}
+                title={project.project_key ? `${project.project_key} • ${project.name}` : project.name}
+              >
+                <h3>{project.name}</h3>
+                {project.description ? (
+                  <p className="subtitle" style={{ marginTop: -6 }}>{project.description}</p>
+                ) : null}
+                <div className="project-stats">
+                  <div className="stat">
+                    <span className="stat-label">Created</span>
+                    <span className="stat-value">{createdDate}</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Bugs</span>
+                    <span className="stat-value">{bugsCount}</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-label">Tasks</span>
+                    <span className="stat-value">{tasksCount}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
