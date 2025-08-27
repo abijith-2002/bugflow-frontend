@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/DashboardPage.css';
-import { buildUrl, apiPost, apiGet, getWorkItems } from '../api';
+import { buildUrl, apiPost, getWorkItems } from '../api';
 import { getApiBaseUrl } from '../apiConfig';
 
 const THEME_COLORS = [
@@ -22,6 +22,7 @@ export default function DashboardPage() {
    * - Each card shows: title, creation date, bug and task counts, with border color from 'colour' column.
    * - Includes a modal form for creating projects via POST /projects.
    * - Adds a Refresh button to manually reload the project list from backend.
+   * - On clicking a project card, opens a details section showing the project title and lists 'Tasks' and 'Bugs' from /work-items.
    */
   const [showModal, setShowModal] = useState(false);
   const [projectName, setProjectName] = useState('');
@@ -35,6 +36,13 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [refreshing, setRefreshing] = useState(false); // UI state for Refresh button
+
+  // Selection and details state
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [itemsLoading, setItemsLoading] = useState(false);
+  const [itemsError, setItemsError] = useState('');
+  const [projectTasks, setProjectTasks] = useState([]);
+  const [projectBugs, setProjectBugs] = useState([]);
 
   const apiBase = getApiBaseUrl();
 
@@ -69,14 +77,14 @@ export default function DashboardPage() {
                 ? p.bugs
                 : Array.isArray(p?.bugs)
                 ? p.bugs.length
-                : 0;
+                : (Number.isFinite(p?.bugs_count) ? p.bugs_count : 0);
 
             const tasksCount =
               Number.isFinite(p?.tasks)
                 ? p.tasks
                 : Array.isArray(p?.tasks)
                 ? p.tasks.length
-                : 0;
+                : (Number.isFinite(p?.tasks_count) ? p.tasks_count : 0);
 
             return {
               id: p?.id ?? `tmp-${idx}-${Math.random().toString(36).slice(2)}`,
@@ -167,6 +175,38 @@ export default function DashboardPage() {
     }
   };
 
+  // PUBLIC_INTERFACE
+  const handleSelectProject = async (project) => {
+    /**
+     * Select a project and load its work items from backend: GET /work-items?project_id=<id>.
+     * Items are grouped into Tasks and Bugs.
+     */
+    if (!project || !project.id) return;
+    setSelectedProject(project);
+    setItemsError('');
+    setItemsLoading(true);
+    setProjectTasks([]);
+    setProjectBugs([]);
+
+    try {
+      const items = await getWorkItems({ projectId: project.id });
+      const tasks = [];
+      const bugs = [];
+      if (Array.isArray(items)) {
+        for (const wi of items) {
+          if (wi?.item_type === 'task') tasks.push(wi);
+          else if (wi?.item_type === 'bug') bugs.push(wi);
+        }
+      }
+      setProjectTasks(tasks);
+      setProjectBugs(bugs);
+    } catch (err) {
+      setItemsError(err?.message || 'Failed to load work items');
+    } finally {
+      setItemsLoading(false);
+    }
+  };
+
   const emptyState = useMemo(() => !loading && projects.length === 0 && !listError, [loading, projects.length, listError]);
 
   return (
@@ -202,45 +242,113 @@ export default function DashboardPage() {
       ) : emptyState ? (
         <div className="subtitle">No projects found. Create your first project to get started.</div>
       ) : (
-        <div className="project-grid">
-          {projects.map(project => {
-            const borderColor = (typeof project.colour === 'string' && project.colour.trim()) ? project.colour : '#434C5E';
-            const createdDate = project.created_at ? new Date(project.created_at).toLocaleDateString() : '—';
-            const bugsCount = Number.isFinite(project.bugs) ? project.bugs : 0;
-            const tasksCount = Number.isFinite(project.tasks) ? project.tasks : 0;
+        <>
+          <div className="project-grid">
+            {projects.map(project => {
+              const borderColor = (typeof project.colour === 'string' && project.colour.trim()) ? project.colour : '#434C5E';
+              const createdDate = project.created_at ? new Date(project.created_at).toLocaleDateString() : '—';
+              const bugsCount = Number.isFinite(project.bugs) ? project.bugs : 0;
+              const tasksCount = Number.isFinite(project.tasks) ? project.tasks : 0;
 
-            return (
-              <div
-                key={project.id}
-                className="project-card"
-                style={{ borderColor }}
-                title={project.project_key ? `${project.project_key} • ${project.name}` : project.name}
-              >
-                <h3>{project.name}</h3>
-                {/* Removed project description as per new design */}
-                <div className="project-stats">
-                  {/* Created date as plain inline text (no box styling) */}
-                  <div className="stat-inline">
-                    <span className="stat-label">Created</span>
-                    <span className="stat-plain">{createdDate}</span>
-                  </div>
-
-                  {/* Bugs and Tasks (aggregated counts from work_item: item_type='bug' | 'task') aligned horizontally under the created date */}
-                  <div className="stat-row">
-                    <div className="stat">
-                      <span className="stat-label">Bugs</span>
-                      <span className="stat-value">{bugsCount}</span>
+              return (
+                <div
+                  key={project.id}
+                  className="project-card"
+                  style={{ borderColor }}
+                  title={project.project_key ? `${project.project_key} • ${project.name}` : project.name}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleSelectProject(project)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectProject(project); } }}
+                >
+                  <h3>{project.name}</h3>
+                  <div className="project-stats">
+                    <div className="stat-inline">
+                      <span className="stat-label">Created</span>
+                      <span className="stat-plain">{createdDate}</span>
                     </div>
-                    <div className="stat">
-                      <span className="stat-label">Tasks</span>
-                      <span className="stat-value">{tasksCount}</span>
+                    <div className="stat-row">
+                      <div className="stat">
+                        <span className="stat-label">Bugs</span>
+                        <span className="stat-value">{bugsCount}</span>
+                      </div>
+                      <div className="stat">
+                        <span className="stat-label">Tasks</span>
+                        <span className="stat-value">{tasksCount}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+
+          {/* Details section for selected project */}
+          {selectedProject && (
+            <div className="project-details">
+              <div className="project-details-header">
+                <h3 className="project-details-title">
+                  {selectedProject.name}
+                </h3>
+                <button
+                  className="btn btn-secondary"
+                  type="button"
+                  onClick={() => {
+                    setSelectedProject(null);
+                    setProjectTasks([]);
+                    setProjectBugs([]);
+                    setItemsError('');
+                  }}
+                  aria-label="Close project details"
+                >
+                  Close
+                </button>
               </div>
-            );
-          })}
-        </div>
+
+              {itemsLoading ? (
+                <div className="subtitle">Loading items...</div>
+              ) : itemsError ? (
+                <div className="error" role="alert">{itemsError}</div>
+              ) : (
+                <div className="project-items">
+                  <div className="items-group">
+                    <h4 className="items-title">Tasks</h4>
+                    {projectTasks.length === 0 ? (
+                      <div className="subtitle">No tasks found.</div>
+                    ) : (
+                      <ul className="items-list">
+                        {projectTasks.map(item => (
+                          <li key={item.item_key} className="item-row">
+                            <span className="item-key">{item.item_key}</span>
+                            <span className="item-title">{item.title}</span>
+                            {item.status ? <span className="item-status">{item.status}</span> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div className="items-group">
+                    <h4 className="items-title">Bugs</h4>
+                    {projectBugs.length === 0 ? (
+                      <div className="subtitle">No bugs found.</div>
+                    ) : (
+                      <ul className="items-list">
+                        {projectBugs.map(item => (
+                          <li key={item.item_key} className="item-row">
+                            <span className="item-key">{item.item_key}</span>
+                            <span className="item-title">{item.title}</span>
+                            {item.status ? <span className="item-status">{item.status}</span> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {showModal && (
