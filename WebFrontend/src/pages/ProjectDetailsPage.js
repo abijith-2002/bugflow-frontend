@@ -259,107 +259,107 @@ export default function ProjectDetailsPage() {
           </div>
         </div>
       )}
+
+      {showCreateModal && (
+        <div className="modal-backdrop" role="presentation">
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-item-title"
+          >
+            <h2 id="create-item-title" className="modal-title">Create Work Item</h2>
+            <p className="modal-subtitle">Add a new Task or Bug for this project.</p>
+
+            {createError ? <div className="error" role="alert">{createError}</div> : null}
+
+            <form className="form" onSubmit={onSubmitCreate}>
+              <div className="row">
+                <div style={{ flex: 1 }}>
+                  <label className="label" htmlFor="item-type">Type</label>
+                  <select
+                    id="item-type"
+                    className="input"
+                    value={formType}
+                    onChange={(e) => setFormType(e.target.value)}
+                  >
+                    <option value="task">Task</option>
+                    <option value="bug">Bug</option>
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="label" htmlFor="item-status">Status</label>
+                  <select
+                    id="item-status"
+                    className="input"
+                    value={formStatus}
+                    onChange={(e) => setFormStatus(e.target.value)}
+                  >
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="row">
+                <div style={{ flex: 1 }}>
+                  <label className="label" htmlFor="item-priority">Priority</label>
+                  <select
+                    id="item-priority"
+                    className="input"
+                    value={formPriority}
+                    onChange={(e) => setFormPriority(e.target.value)}
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="label" htmlFor="item-title">Title</label>
+                <input
+                  id="item-title"
+                  className="input"
+                  type="text"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  placeholder="Short title"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="label" htmlFor="item-desc">Description</label>
+                <textarea
+                  id="item-desc"
+                  className="input"
+                  rows={4}
+                  value={formDesc}
+                  onChange={(e) => setFormDesc(e.target.value)}
+                  placeholder="Describe the task or bug"
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => { setShowCreateModal(false); resetCreateForm(); }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn" disabled={creating}>
+                  {creating ? 'Creating...' : 'Create Item'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
-
-  {showCreateModal && (
-    <div className="modal-backdrop" role="presentation">
-      <div
-        className="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="create-item-title"
-      >
-        <h2 id="create-item-title" className="modal-title">Create Work Item</h2>
-        <p className="modal-subtitle">Add a new Task or Bug for this project.</p>
-
-        {createError ? <div className="error" role="alert">{createError}</div> : null}
-
-        <form className="form" onSubmit={onSubmitCreate}>
-          <div className="row">
-            <div style={{ flex: 1 }}>
-              <label className="label" htmlFor="item-type">Type</label>
-              <select
-                id="item-type"
-                className="input"
-                value={formType}
-                onChange={(e) => setFormType(e.target.value)}
-              >
-                <option value="task">Task</option>
-                <option value="bug">Bug</option>
-              </select>
-            </div>
-            <div style={{ flex: 1 }}>
-              <label className="label" htmlFor="item-status">Status</label>
-              <select
-                id="item-status"
-                className="input"
-                value={formStatus}
-                onChange={(e) => setFormStatus(e.target.value)}
-              >
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="closed">Closed</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="row">
-            <div style={{ flex: 1 }}>
-              <label className="label" htmlFor="item-priority">Priority</label>
-              <select
-                id="item-priority"
-                className="input"
-                value={formPriority}
-                onChange={(e) => setFormPriority(e.target.value)}
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="critical">Critical</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="label" htmlFor="item-title">Title</label>
-            <input
-              id="item-title"
-              className="input"
-              type="text"
-              value={formTitle}
-              onChange={(e) => setFormTitle(e.target.value)}
-              placeholder="Short title"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="label" htmlFor="item-desc">Description</label>
-            <textarea
-              id="item-desc"
-              className="input"
-              rows={4}
-              value={formDesc}
-              onChange={(e) => setFormDesc(e.target.value)}
-              placeholder="Describe the task or bug"
-            />
-          </div>
-
-          <div className="modal-actions">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => { setShowCreateModal(false); resetCreateForm(); }}
-            >
-              Cancel
-            </button>
-            <button type="submit" className="btn" disabled={creating}>
-              {creating ? 'Creating...' : 'Create Item'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )}
 }
