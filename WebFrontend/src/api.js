@@ -78,6 +78,26 @@ export async function getWorkItems({ projectId } = {}) {
   return apiGet('/work-items', params);
 }
 
+/**
+ * PUBLIC_INTERFACE
+ */
+export async function createWorkItem({ project_id, item_type, title, description, status, priority, created_at }) {
+  /** Create a new work item (task or bug). Follows backend OpenAPI: POST /work-items. */
+  if (!project_id || !item_type || !title) {
+    throw new Error('project_id, item_type and title are required');
+  }
+  const payload = {
+    project_id,
+    item_type,
+    title,
+    description: description ?? null,
+    status: status ?? null,
+    priority: priority ?? null,
+    created_at: created_at ?? new Date().toISOString(),
+  };
+  return apiPost('/work-items', payload);
+}
+
 // PUBLIC_INTERFACE
 export function buildUrl(path) {
   /** Returns the full URL for the given API path using the current base. */
