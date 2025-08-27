@@ -43,7 +43,10 @@
 }
 
 .create-project-btn {
-  max-width: 200px;
+  /* Ensure the text stays on one line and the button doesn't get too tall */
+  white-space: nowrap;
+  min-width: 220px; /* increase width to accommodate full text */
+  max-width: none;  /* allow it to size based on content if needed */
 }
 
 .project-grid {
