@@ -21,6 +21,7 @@ export default function DashboardPage() {
    * - Fetches projects from backend and displays cards.
    * - Each card shows: title, creation date, bug and task counts, with border color from 'colour' column.
    * - Includes a modal form for creating projects via POST /projects.
+   * - Adds a Refresh button to manually reload the project list from backend.
    */
   const [showModal, setShowModal] = useState(false);
   const [projectName, setProjectName] = useState('');
@@ -33,10 +34,11 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // UI state for Refresh button
 
   const apiBase = getApiBaseUrl();
 
-  // Extracted loader to reuse after create
+  // Extracted loader to reuse after create and refresh
   const loadProjects = async (signal) => {
     setLoading(true);
     setListError('');
@@ -137,19 +139,43 @@ export default function DashboardPage() {
     setError('');
   };
 
+  // PUBLIC_INTERFACE
+  const handleRefresh = async () => {
+    /** Manually refetch the project list from the backend and update the UI. */
+    setRefreshing(true);
+    try {
+      await loadProjects(); // reuse loader; no signal for immediate action
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const emptyState = useMemo(() => !loading && projects.length === 0 && !listError, [loading, projects.length, listError]);
 
   return (
     <div className="dashboard">
       <div className="dashboard-header">
         <h2>Projects</h2>
-        <button
-          className="btn create-project-btn"
-          onClick={() => setShowModal(true)}
-          aria-label="Create new project"
-        >
-          Create New Project
-        </button>
+        <div className="dashboard-actions">
+          <button
+            className="btn btn-secondary refresh-btn"
+            onClick={handleRefresh}
+            aria-label="Refresh project list"
+            disabled={refreshing || loading}
+            title="Reload projects"
+            type="button"
+          >
+            {refreshing || loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+          <button
+            className="btn create-project-btn"
+            onClick={() => setShowModal(true)}
+            aria-label="Create new project"
+            type="button"
+          >
+            Create New Project
+          </button>
+        </div>
       </div>
 
       {loading ? (
