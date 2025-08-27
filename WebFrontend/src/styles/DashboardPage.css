@@ -79,6 +79,11 @@
   gap: 12px;
 }
 
+/* Ensure each stat (Bugs/Tasks) expands to half width */
+.stat-row .stat {
+  flex: 1 1 50%;
+}
+
 /* Created date should be plain text (no box) */
 .stat-inline {
   display: flex;
