@@ -5,6 +5,7 @@ import './index.css';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
+import ProjectDetailsPage from './pages/ProjectDetailsPage';
 import { getApiBaseUrl, setApiBaseUrl, pingHealth } from './apiConfig';
 
 // PUBLIC_INTERFACE
@@ -133,6 +134,7 @@ function App() {
           <Route path="/login" element={<div className="card"><LoginPage /></div>} />
           <Route path="/signup" element={<div className="card"><SignUpPage /></div>} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/project/:id" element={<ProjectDetailsPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
