@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/DashboardPage.css';
 import { buildUrl, apiPost, getWorkItems } from '../api';
 import { getApiBaseUrl } from '../apiConfig';
+import { FaPlus } from 'react-icons/fa';
 
 const THEME_COLORS = [
   '#88C0D0', // nord8
@@ -208,7 +209,10 @@ export default function DashboardPage() {
             aria-label="Create new project"
             type="button"
           >
-            Create New Project
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+              <FaPlus aria-hidden="true" />
+              <span>Create New Project</span>
+            </span>
           </button>
         </div>
       </div>
