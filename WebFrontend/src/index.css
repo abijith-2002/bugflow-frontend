@@ -259,6 +259,13 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
 }
 
+/* Contextual override: buttons in header action rows should size to content */
+.dashboard-actions .btn,
+.project-details-header .btn,
+.dashboard-header .btn {
+  width: auto;
+}
+
 .btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;

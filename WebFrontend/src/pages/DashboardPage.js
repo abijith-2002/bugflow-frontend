@@ -209,7 +209,7 @@ export default function DashboardPage() {
             aria-label="Create new project"
             type="button"
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               <FaPlus aria-hidden="true" />
               <span>Create New Project</span>
             </span>
