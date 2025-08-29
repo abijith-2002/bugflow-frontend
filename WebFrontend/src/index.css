@@ -236,12 +236,34 @@ h1, h2, h3, h4, h5, h6 {
 
 .input {
   width: 100%;
-  padding: 12px 12px;
+  /* Add extra right padding to make space for a custom dropdown arrow */
+  padding: 12px 36px 12px 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
   outline: none;
   background: var(--input-bg);
   color: var(--text);
+  /* Ensure consistent height/appearance across inputs/selects */
+  line-height: 1.3;
+}
+
+/* Improve native select appearance and position the arrow slightly left */
+select.input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* Create a custom arrow using a data URI SVG; position it away from the edge */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23ECEFF4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>');
+  background-repeat: no-repeat;
+  /* Move the arrow away from the right edge to create visible space */
+  background-position: right 10px center;
+  background-size: 14px;
+  cursor: pointer;
+}
+
+/* Hide default dropdown arrow in IE/Edge (legacy) */
+select.input::-ms-expand {
+  display: none;
 }
 
 .input:focus {
