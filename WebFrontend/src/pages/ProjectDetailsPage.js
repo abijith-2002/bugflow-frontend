@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiGet, getWorkItems, buildUrl, createWorkItem } from '../api';
 import '../styles/DashboardPage.css'; // reuse existing styles for lists/cards
+import { FaAngleLeft } from 'react-icons/fa';
 
 // PUBLIC_INTERFACE
 export default function ProjectDetailsPage() {
@@ -199,8 +200,11 @@ export default function ProjectDetailsPage() {
       <div className="dashboard-header">
         <h2>{heading}</h2>
         <div className="dashboard-actions">
-          <button className="btn btn-secondary" type="button" onClick={() => navigate('/dashboard')}>
-            Back to Dashboard
+          <button className="btn btn-secondary" type="button" onClick={() => navigate('/dashboard')} aria-label="Go back to dashboard">
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <FaAngleLeft aria-hidden="true" />
+              <span>Back</span>
+            </span>
           </button>
           <button
             className="btn"
