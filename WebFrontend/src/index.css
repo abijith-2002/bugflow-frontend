@@ -284,8 +284,9 @@ select.input::-ms-expand {
 select.input option:hover,
 select.input option:focus,
 select.input option:active {
-  background-color: var(--nord3); /* darker than surface-alt for strong contrast */
-  color: var(--nord6);
+  /* Use an app palette token for consistency */
+  background-color: var(--surface-alt); /* uses --nord2 from palette */
+  color: var(--text);
 }
 
 .btn {
