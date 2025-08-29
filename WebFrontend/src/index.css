@@ -32,6 +32,12 @@
   --danger: var(--nord11);
   --border: var(--nord3);
   --input-bg: var(--nord2);
+
+  /* Focused/hovered dropdown menu item colors for accessibility */
+  --menu-item-bg: rgba(136, 192, 208, 0.22);  /* nord8 with transparency for subtle highlight */
+  --menu-item-bg-strong: #5E81AC;            /* nord10 for active/keyboard focus */
+  --menu-item-text: #ECEFF4;                 /* nord6 for high contrast on strong bg */
+  --menu-item-text-dim: #D8DEE9;             /* nord4 for subtle text when needed */
 }
 
 *,
@@ -261,6 +267,9 @@ select.input {
   background-position: right 10px center;
   background-size: 14px;
   cursor: pointer;
+  /* Improve focus ring visibility for accessibility */
+  outline: none;
+  box-shadow: 0 0 0 0 transparent;
 }
 
 /* Hide default dropdown arrow in IE/Edge (legacy) */
@@ -270,6 +279,19 @@ select.input::-ms-expand {
 
 .input:focus {
   border-color: var(--primary);
+}
+
+/* Dropdown option highlighting (supported in modern Chromium/Firefox) */
+select.input option:hover,
+select.input option:focus {
+  background-color: var(--menu-item-bg);
+  color: var(--text);
+}
+
+select.input option:active,
+select.input option:checked {
+  background-color: var(--menu-item-bg-strong);
+  color: var(--menu-item-text);
 }
 
 .btn {

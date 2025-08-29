@@ -235,6 +235,18 @@
   padding: 16px;
 }
 
+/* Ensure dropdown menu items inside Project Details use accessible highlight colors */
+.project-details select.input option:hover,
+.project-details select.input option:focus {
+  background-color: var(--menu-item-bg);
+  color: var(--text);
+}
+.project-details select.input option:active,
+.project-details select.input option:checked {
+  background-color: var(--menu-item-bg-strong);
+  color: var(--menu-item-text);
+}
+
 .project-details-header {
   display: flex;
   align-items: center;
