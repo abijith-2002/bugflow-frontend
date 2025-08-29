@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/DashboardPage.css';
 import { buildUrl, apiPost, getWorkItems } from '../api';
 import { getApiBaseUrl } from '../apiConfig';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaSync } from 'react-icons/fa';
 
 const THEME_COLORS = [
   '#88C0D0', // nord8
@@ -201,7 +201,10 @@ export default function DashboardPage() {
             title="Reload projects"
             type="button"
           >
-            {refreshing || loading ? 'Refreshing...' : 'Refresh'}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <FaSync aria-hidden="true" />
+              <span>{refreshing || loading ? 'Refreshing...' : 'Refresh'}</span>
+            </span>
           </button>
           <button
             className="btn create-project-btn"
