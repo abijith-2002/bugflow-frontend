@@ -52,6 +52,14 @@
   font-size: 12.5px; /* slightly smaller than previous 13px */
 }
 
+/* Utility for action buttons to keep inline content on a single line */
+.dashboard-actions .btn {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Make the Refresh button compact as well */
 .refresh-btn {
   padding: 8px 10px;

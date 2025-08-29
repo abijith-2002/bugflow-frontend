@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiGet, getWorkItems, buildUrl, createWorkItem } from '../api';
 import '../styles/DashboardPage.css'; // reuse existing styles for lists/cards
-import { FaAngleLeft } from 'react-icons/fa';
+import { FaAngleLeft, FaPlus } from 'react-icons/fa';
 
 // PUBLIC_INTERFACE
 export default function ProjectDetailsPage() {
@@ -212,7 +212,10 @@ export default function ProjectDetailsPage() {
             onClick={() => { setShowCreateModal(true); setCreateError(''); }}
             aria-label="Create new work item"
           >
-            Create Item
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+              <FaPlus aria-hidden="true" />
+              <span>Create Item</span>
+            </span>
           </button>
         </div>
       </div>
