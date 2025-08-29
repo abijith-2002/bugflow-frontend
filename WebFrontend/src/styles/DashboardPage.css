@@ -71,8 +71,8 @@
   gap: 8px;
   width: auto;
   min-width: auto;
-  padding: 8px 10px;    /* same vertical and horizontal padding as dashboard action buttons */
-  font-size: 12px;      /* align with refresh/create project sizing */
+  padding: 8px 10px !important;    /* enforce exact padding for 'Back' and 'Create Item' */
+  font-size: 12px;                 /* align with refresh/create project sizing */
 }
 
 /* Make the Refresh button compact as well */
@@ -81,6 +81,12 @@
   font-size: 12px; /* slightly smaller than previous 12.5px */
   width: auto;
   min-width: auto;
+}
+
+/* Explicit padding for specific buttons on ProjectDetailsPage */
+.project-details-header .dashboard-actions .back-btn,
+.project-details-header .dashboard-actions .create-item-btn {
+  padding: 8px 10px !important; /* ensure exact padding regardless of inherited styles */
 }
 
 .project-grid {

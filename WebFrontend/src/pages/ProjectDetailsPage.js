@@ -200,14 +200,14 @@ export default function ProjectDetailsPage() {
       <div className="dashboard-header">
         <h2>{heading}</h2>
         <div className="dashboard-actions">
-          <button className="btn btn-secondary" type="button" onClick={() => navigate('/dashboard')} aria-label="Go back to dashboard">
+          <button className="btn btn-secondary back-btn" type="button" onClick={() => navigate('/dashboard')} aria-label="Go back to dashboard">
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <FaAngleLeft aria-hidden="true" />
               <span>Back</span>
             </span>
           </button>
           <button
-            className="btn"
+            className="btn create-item-btn"
             type="button"
             onClick={() => { setShowCreateModal(true); setCreateError(''); }}
             aria-label="Create new work item"
