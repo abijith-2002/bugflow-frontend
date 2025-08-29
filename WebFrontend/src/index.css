@@ -282,12 +282,13 @@ select.input::-ms-expand {
 }
 
 /* Dropdown option highlighting (supported in modern Chromium/Firefox) */
-select.input option:hover,
-select.input option:focus {
+/* Only hovered options get the subtle highlight; do not style focused options separately */
+select.input option:hover {
   background-color: var(--menu-item-bg);
   color: var(--text);
 }
 
+/* Keep active/selected visual for click/selection states */
 select.input option:active,
 select.input option:checked {
   background-color: var(--menu-item-bg-strong);

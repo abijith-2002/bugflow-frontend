@@ -236,8 +236,8 @@
 }
 
 /* Ensure dropdown menu items inside Project Details use accessible highlight colors */
-.project-details select.input option:hover,
-.project-details select.input option:focus {
+/* Only hovered options get the subtle highlight; no unique style for focused items */
+.project-details select.input option:hover {
   background-color: var(--menu-item-bg);
   color: var(--text);
 }
