@@ -63,6 +63,18 @@
   padding-inline: 10px;/* compact horizontal padding */
 }
 
+/* Ensure Project Details header action buttons match Dashboard action button padding */
+.project-details-header .btn {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  min-width: auto;
+  padding: 8px 10px;    /* same vertical and horizontal padding as dashboard action buttons */
+  font-size: 12px;      /* align with refresh/create project sizing */
+}
+
 /* Make the Refresh button compact as well */
 .refresh-btn {
   padding: 8px 10px;
