@@ -11,7 +11,7 @@ export default function ProjectDetailsPage() {
    * - Reads :id from URL.
    * - Fetches the project (GET /projects) and filters to id locally (since backend has only list endpoint).
    * - On mount, fetches all work items for this project via GET /work-items?project_id=<id>.
-   * - Displays project title as heading and grouped lists of Tasks and Bugs.
+   * - Displays project title as heading and a unified table of all work items with filters.
    */
   const { id } = useParams();
   const navigate = useNavigate();
@@ -24,6 +24,11 @@ export default function ProjectDetailsPage() {
   const [itemsErr, setItemsErr] = useState('');
   const [tasks, setTasks] = useState([]);
   const [bugs, setBugs] = useState([]);
+
+  // Filters UI state
+  const [filterType, setFilterType] = useState('all'); // 'all' | 'bug' | 'task'
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'open' | 'in_progress' | 'closed'
+  const [filterPriority, setFilterPriority] = useState('all'); // 'all' | 'low' | 'medium' | 'high' | 'critical'
 
   // Create Item modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -195,9 +200,65 @@ export default function ProjectDetailsPage() {
     return 'Project';
   }, [loadingProject, project]);
 
+  // Combine tasks and bugs in a single array
+  const allItems = useMemo(() => {
+    const taggedTasks = tasks.map(t => ({ ...t, _type: 'task' }));
+    const taggedBugs = bugs.map(b => ({ ...b, _type: 'bug' }));
+    // Sort newest first by created_at if available
+    const merged = [...taggedTasks, ...taggedBugs].sort((a, b) => {
+      const da = a?.created_at ? new Date(a.created_at).getTime() : 0;
+      const db = b?.created_at ? new Date(b.created_at).getTime() : 0;
+      return db - da;
+    });
+    return merged;
+  }, [tasks, bugs]);
+
+  // Apply filters
+  const filteredItems = useMemo(() => {
+    return allItems.filter(item => {
+      if (filterType !== 'all' && item._type !== filterType) return false;
+      if (filterStatus !== 'all') {
+        const s = (item.status || '').toLowerCase();
+        const want = filterStatus;
+        if (s !== want) return false;
+      }
+      if (filterPriority !== 'all') {
+        const p = (item.priority || '').toLowerCase();
+        const wantp = filterPriority;
+        if (p !== wantp) return false;
+      }
+      return true;
+    });
+  }, [allItems, filterType, filterStatus, filterPriority]);
+
+  // Helper to humanize type/status/priority and created date
+  const humanType = (t) => (t === 'bug' ? 'Bug' : 'Task');
+  const humanStatus = (s) => {
+    const x = (s || '').toLowerCase();
+    if (x === 'in_progress') return 'In Progress';
+    if (x === 'closed') return 'Closed';
+    return 'Open';
+  };
+  const humanPriority = (p) => {
+    const x = (p || '').toLowerCase();
+    if (x === 'low') return 'Low';
+    if (x === 'high') return 'High';
+    if (x === 'critical') return 'Critical';
+    return 'Medium';
+  };
+  const humanDateTime = (iso) => {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+    } catch {
+      return '—';
+    }
+  };
+
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
+      <div className="dashboard-header project-details-header">
         <h2>{heading}</h2>
         <div className="dashboard-actions">
           <button className="btn btn-secondary back-btn" type="button" onClick={() => navigate('/dashboard')} aria-label="Go back to dashboard">
@@ -230,39 +291,91 @@ export default function ProjectDetailsPage() {
       ) : itemsErr ? (
         <div className="error" role="alert">{itemsErr}</div>
       ) : (
-        <div className="project-items">
-          <div className="items-group">
-            <h4 className="items-title">Tasks</h4>
-            {tasks.length === 0 ? (
-              <div className="subtitle">No tasks found.</div>
-            ) : (
-              <ul className="items-list">
-                {tasks.map(item => (
-                  <li key={item.item_key} className="item-row">
-                    <span className="item-key">{item.item_key}</span>
-                    <span className="item-title">{item.title}</span>
-                    {item.status ? <span className="item-status">{item.status}</span> : null}
-                  </li>
-                ))}
-              </ul>
-            )}
+        <div className="project-details" style={{ width: '100%' }}>
+          <div className="project-details-header" style={{ borderBottom: 'none', paddingTop: 0 }}>
+            <h3 className="project-details-title">Items</h3>
           </div>
 
-          <div className="items-group">
-            <h4 className="items-title">Bugs</h4>
-            {bugs.length === 0 ? (
-              <div className="subtitle">No bugs found.</div>
-            ) : (
-              <ul className="items-list">
-                {bugs.map(item => (
-                  <li key={item.item_key} className="item-row">
-                    <span className="item-key">{item.item_key}</span>
-                    <span className="item-title">{item.title}</span>
-                    {item.status ? <span className="item-status">{item.status}</span> : null}
-                  </li>
-                ))}
-              </ul>
-            )}
+          {/* Filters Row */}
+          <div className="row" style={{ gap: 10, marginBottom: 12 }}>
+            <div style={{ flex: 1 }}>
+              <label className="label" htmlFor="filter-type">Item Type</label>
+              <select
+                id="filter-type"
+                className="input"
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+              >
+                <option value="all">All</option>
+                <option value="bug">Bug</option>
+                <option value="task">Task</option>
+              </select>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className="label" htmlFor="filter-status">Status</label>
+              <select
+                id="filter-status"
+                className="input"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="all">All</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div style={{ flex: 1 }}>
+              <label className="label" htmlFor="filter-priority">Priority</label>
+              <select
+                id="filter-priority"
+                className="input"
+                value={filterPriority}
+                onChange={(e) => setFilterPriority(e.target.value)}
+              >
+                <option value="all">All</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Unified Table */}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ background: 'var(--surface-alt)' }}>
+                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '1px solid var(--border)', color: 'var(--text-dim)' }}>Item Key</th>
+                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '1px solid var(--border)', color: 'var(--text-dim)' }}>Item Type</th>
+                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '1px solid var(--border)', color: 'var(--text-dim)' }}>Title</th>
+                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '1px solid var(--border)', color: 'var(--text-dim)' }}>Status</th>
+                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '1px solid var(--border)', color: 'var(--text-dim)' }}>Priority</th>
+                  <th style={{ textAlign: 'left', padding: '10px', borderBottom: '1px solid var(--border)', color: 'var(--text-dim)' }}>Created on</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredItems.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: 12, color: 'var(--text-dimmer)' }}>
+                      No items match the selected filters.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredItems.map((item) => (
+                    <tr key={item.item_key} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '10px', color: 'var(--nord8)', fontWeight: 600 }}>{item.item_key}</td>
+                      <td style={{ padding: '10px' }}>{humanType(item._type)}</td>
+                      <td style={{ padding: '10px' }}>{item.title || '—'}</td>
+                      <td style={{ padding: '10px', color: 'var(--text-dim)' }}>{humanStatus(item.status)}</td>
+                      <td style={{ padding: '10px' }}>{humanPriority(item.priority)}</td>
+                      <td style={{ padding: '10px' }}>{humanDateTime(item.created_at)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
