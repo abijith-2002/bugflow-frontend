@@ -47,6 +47,15 @@
   white-space: nowrap;
   min-width: 220px; /* increase width to accommodate full text */
   max-width: none;  /* allow it to size based on content if needed */
+  /* Make button more compact */
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+/* Make the Refresh button compact as well */
+.refresh-btn {
+  padding: 8px 10px;
+  font-size: 12.5px;
 }
 
 .project-grid {
