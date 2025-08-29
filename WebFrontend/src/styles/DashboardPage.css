@@ -29,7 +29,9 @@
 /* Horizontal rule under Projects title */
 .dashboard-header {
   position: relative;
-  padding-bottom: 4px; /* smaller gap to the divider */
+  /* Add space above the horizontal divider for cleaner UI */
+  padding-top: 12px;
+  padding-bottom: 8px; /* slightly increase gap to the divider */
 }
 
 .dashboard-header::after {
@@ -237,6 +239,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* Add vertical padding above and keep the bottom spacing consistent */
+  padding-top: 12px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 12px;
