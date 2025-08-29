@@ -261,6 +261,14 @@ select.input {
   background-position: right 10px center;
   background-size: 14px;
   cursor: pointer;
+  /* Provide a clearer hover surface color aligned with Nord palette */
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Hover state for the select input itself to improve affordance */
+select.input:hover {
+  background-color: var(--surface-alt); /* uses --nord2 for subtle contrast */
+  border-color: var(--primary); /* slight emphasis on hover */
 }
 
 /* Hide default dropdown arrow in IE/Edge (legacy) */
@@ -270,6 +278,14 @@ select.input::-ms-expand {
 
 .input:focus {
   border-color: var(--primary);
+}
+
+/* Improve hover visibility inside dropdown lists where supported */
+select.input option:hover,
+select.input option:focus,
+select.input option:active {
+  background-color: var(--nord3); /* darker than surface-alt for strong contrast */
+  color: var(--nord6);
 }
 
 .btn {
