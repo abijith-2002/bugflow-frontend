@@ -8,7 +8,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px; /* reduced to move content closer */
 }
 
 /* Inline actions container to place Refresh next to Create button */
@@ -22,14 +22,14 @@
   margin: 0;
   color: var(--text);
   font-size: 24px;
-  padding-bottom: 16px;
+  padding-bottom: 0; /* remove bottom padding so title sits closer */
   width: 100%;
 }
 
 /* Horizontal rule under Projects title */
 .dashboard-header {
   position: relative;
-  padding-bottom: 8px;
+  padding-bottom: 4px; /* smaller gap to the divider */
 }
 
 .dashboard-header::after {
