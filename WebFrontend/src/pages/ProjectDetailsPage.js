@@ -201,7 +201,7 @@ export default function ProjectDetailsPage() {
         <h2>{heading}</h2>
         <div className="dashboard-actions">
           <button className="btn btn-secondary back-btn" type="button" onClick={() => navigate('/dashboard')} aria-label="Go back to dashboard">
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--action-gap)' }}>
               <FaAngleLeft aria-hidden="true" />
               <span>Back</span>
             </span>
@@ -212,7 +212,7 @@ export default function ProjectDetailsPage() {
             onClick={() => { setShowCreateModal(true); setCreateError(''); }}
             aria-label="Create new work item"
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--action-gap)', whiteSpace: 'nowrap' }}>
               <FaPlus aria-hidden="true" />
               <span>Create Item</span>
             </span>

@@ -201,7 +201,7 @@ export default function DashboardPage() {
             title="Reload projects"
             type="button"
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--action-gap)' }}>
               <FaSync aria-hidden="true" />
               <span>{refreshing || loading ? 'Refreshing...' : 'Refresh'}</span>
             </span>

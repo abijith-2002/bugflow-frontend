@@ -14,7 +14,7 @@
 /* Inline actions container to place Refresh next to Create button */
 .dashboard-actions {
   display: flex;
-  gap: 10px;
+  gap: var(--action-gap);
   align-items: center;
 }
 
@@ -29,9 +29,9 @@
 /* Horizontal rule under Projects title */
 .dashboard-header {
   position: relative;
-  /* Add space above the horizontal divider for cleaner UI */
-  padding-top: 12px;
-  padding-bottom: 8px; /* slightly increase gap to the divider */
+  /* Use the same spacing as button gap to match vertical spacing with horizontal button gap */
+  padding-top: var(--action-gap);
+  padding-bottom: var(--action-gap);
 }
 
 .dashboard-header::after {
@@ -70,7 +70,7 @@
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--action-gap);
   width: auto;
   min-width: auto;
   padding: 8px 10px !important;    /* enforce exact padding for 'Back' and 'Create Item' */
@@ -239,9 +239,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* Add vertical padding above and keep the bottom spacing consistent */
-  padding-top: 12px;
-  padding-bottom: 8px;
+  /* Use the shared spacing token to match button gap */
+  padding-top: var(--action-gap);
+  padding-bottom: var(--action-gap);
   border-bottom: 1px solid var(--border);
   margin-bottom: 12px;
 }

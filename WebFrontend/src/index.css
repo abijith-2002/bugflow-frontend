@@ -3,6 +3,8 @@
 /* Nord theme palette (no gradients) */
 :root {
   --nord0: #2E3440;
+  /* Shared spacing token for action areas and dividers to ensure consistent gaps */
+  --action-gap: 10px;
   --nord1: #3B4252;
   --nord2: #434C5E;
   --nord3: #4C566A;
