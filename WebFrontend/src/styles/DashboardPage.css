@@ -237,7 +237,7 @@
 
 /* Slightly darker background for the work items table area to separate from page bg */
 .work-items-table {
-  background: var(--surface-alt); /* darker than main app background (var(--bg)) and section surface */
+  background: var(--surface-alt) !important; /* darker than main app background (var(--bg)) and section surface */
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 8px;
