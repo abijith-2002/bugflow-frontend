@@ -89,6 +89,16 @@
   padding: 8px 10px !important; /* ensure exact padding regardless of inherited styles */
 }
 
+/* Ultra-specific selectors to guarantee override for padding on Project Details buttons */
+.dashboard .dashboard-header.project-details-header .dashboard-actions .btn.back-btn,
+.dashboard .dashboard-header.project-details-header .dashboard-actions .btn.create-item-btn,
+.dashboard .project-details-header .dashboard-actions .btn.back-btn,
+.dashboard .project-details-header .dashboard-actions .btn.create-item-btn,
+.dashboard .dashboard-header .dashboard-actions .btn.back-btn,
+.dashboard .dashboard-header .dashboard-actions .btn.create-item-btn {
+  padding: 8px 10px !important;
+}
+
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
