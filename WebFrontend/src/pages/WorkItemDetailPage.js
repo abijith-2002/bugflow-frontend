@@ -224,10 +224,10 @@ export default function WorkItemDetailPage() {
               <div className="label" style={{ marginBottom: 6 }}>Description</div>
               <div
                 style={{
-                  background: 'var(--surface-alt)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 10,
-                  padding: 12,
+                  /* Minimalist: plain background, no borders or box styling */
+                  background: 'transparent',
+                  border: 'none',
+                  padding: 0,
                   whiteSpace: 'pre-wrap',
                   color: 'var(--text)',
                 }}
