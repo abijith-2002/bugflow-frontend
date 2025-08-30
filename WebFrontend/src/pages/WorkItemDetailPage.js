@@ -10,11 +10,10 @@ export default function WorkItemDetailPage() {
    * Work Item Detail Page
    * - Route params: :projectId and :itemId.
    * - Loads the item from GET /work-items?project_id and finds by id.
-   * - Redesigned content area: two-column layout.
-   *   Left (80%): Description
-   *   Right (20%): Type, Status, Priority tags and Created-on date
-   * - Subtle vertical divider between columns.
-   * - Removed tables per new requirements.
+   * - Focused layout: Only work item details are shown. No project-level sections.
+   * - Two-column content area:
+   *     Left: Description
+   *     Right: Type, Status, Priority, Created-on
    */
   const { projectId, itemId } = useParams();
   const navigate = useNavigate();
@@ -157,7 +156,7 @@ export default function WorkItemDetailPage() {
   return (
     <div className="dashboard">
       <div className="dashboard-header project-details-header">
-        {/* Title row with key box + title on left */}
+        {/* Only work item info in the header; no project summary */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', minWidth: 0 }}>
           <div
             title={itemKey}
@@ -181,7 +180,7 @@ export default function WorkItemDetailPage() {
           </h2>
         </div>
 
-        {/* Back button aligned right in header */}
+        {/* Keep a simple back link, but do not render any project details */}
         <div className="dashboard-actions" style={{ flexWrap: 'wrap' }}>
           <button
             className="btn btn-secondary back-btn"
@@ -204,17 +203,17 @@ export default function WorkItemDetailPage() {
         <div className="subtitle">Work item not found.</div>
       ) : (
         <div className="project-details" style={{ width: '100%' }}>
-          {/* Two-column content area */}
+          {/* Two-column content area with only work item fields */}
           <div
             className="wi-two-col"
             style={{
               display: 'grid',
-              gridTemplateColumns: '4fr 1fr', // ~80% / 20%
+              gridTemplateColumns: '4fr 1fr',
               gap: 16,
               alignItems: 'start'
             }}
           >
-            {/* Left: Description */}
+            {/* Left: Description only */}
             <div>
               <div className="label" style={{ marginBottom: 6 }}>Description</div>
               <div
@@ -231,7 +230,7 @@ export default function WorkItemDetailPage() {
               </div>
             </div>
 
-            {/* Right: Tags and Created-on with subtle left divider */}
+            {/* Right: Tags and Created-on */}
             <aside
               style={{
                 borderLeft: '1px solid var(--border)',
