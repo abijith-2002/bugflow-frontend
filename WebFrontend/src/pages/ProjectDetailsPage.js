@@ -364,8 +364,21 @@ export default function ProjectDetailsPage() {
                   </tr>
                 ) : (
                   filteredItems.map((item) => (
-                    <tr key={item.item_key} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '10px', color: 'var(--nord8)', fontWeight: 600 }}>{item.item_key}</td>
+                    <tr
+                      key={item.item_key}
+                      style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
+                      role="button"
+                      tabIndex={0}
+                      title={`Open ${item.item_key}`}
+                      onClick={() => navigate(`/project/${item.project_id}/item/${item.id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          navigate(`/project/${item.project_id}/item/${item.id}`);
+                        }
+                      }}
+                    >
+                      <td style={{ padding: '10px', color: 'var(--nord8)', fontWeight: 600, textDecoration: 'underline' }}>{item.item_key}</td>
                       <td style={{ padding: '10px' }}>{humanType(item._type)}</td>
                       <td style={{ padding: '10px' }}>{item.title || '—'}</td>
                       <td style={{ padding: '10px', color: 'var(--text-dim)' }}>{humanStatus(item.status)}</td>
