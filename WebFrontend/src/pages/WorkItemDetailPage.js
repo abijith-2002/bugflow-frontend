@@ -8,10 +8,13 @@ import { FaAngleLeft } from 'react-icons/fa';
 export default function WorkItemDetailPage() {
   /** 
    * Work Item Detail Page
-   * - Route params: :projectId and :itemId (numeric id within project).
-   * - Loads all work items for the project (GET /work-items?project_id=<projectId>) and finds the one with id === Number(itemId).
-   * - Displays a details view with a title row: [KEY box][Title] and right-aligned colored tags for type, status, priority.
-   * - Shows description below the title row in the content area.
+   * - Route params: :projectId and :itemId.
+   * - Loads the item from GET /work-items?project_id and finds by id.
+   * - Redesigned content area: two-column layout.
+   *   Left (80%): Description
+   *   Right (20%): Type, Status, Priority tags and Created-on date
+   * - Subtle vertical divider between columns.
+   * - Removed tables per new requirements.
    */
   const { projectId, itemId } = useParams();
   const navigate = useNavigate();
@@ -86,7 +89,7 @@ export default function WorkItemDetailPage() {
     type: (type) => {
       const isBug = (type || '').toLowerCase() === 'bug';
       return {
-        background: isBug ? 'rgba(191,97,106,0.15)' : 'rgba(143,188,187,0.15)', // red-ish for bug, green/teal for task
+        background: isBug ? 'rgba(191,97,106,0.15)' : 'rgba(143,188,187,0.15)',
         color: isBug ? '#BF616A' : '#8FBCBB',
         borderColor: isBug ? 'rgba(191,97,106,0.45)' : 'rgba(143,188,187,0.45)',
       };
@@ -95,20 +98,20 @@ export default function WorkItemDetailPage() {
       const s = (status || '').toLowerCase();
       if (s === 'closed') {
         return {
-          background: 'rgba(163,190,140,0.15)', // green
+          background: 'rgba(163,190,140,0.15)',
           color: '#A3BE8C',
           borderColor: 'rgba(163,190,140,0.45)',
         };
       }
       if (s === 'in_progress') {
         return {
-          background: 'rgba(235,203,139,0.15)', // amber
+          background: 'rgba(235,203,139,0.15)',
           color: '#EBCB8B',
           borderColor: 'rgba(235,203,139,0.45)',
         };
       }
       return {
-        background: 'rgba(129,161,193,0.15)', // blue
+        background: 'rgba(129,161,193,0.15)',
         color: '#81A1C1',
         borderColor: 'rgba(129,161,193,0.45)',
       };
@@ -117,27 +120,27 @@ export default function WorkItemDetailPage() {
       const p = (priority || '').toLowerCase();
       if (p === 'critical') {
         return {
-          background: 'rgba(191,97,106,0.15)', // red
+          background: 'rgba(191,97,106,0.15)',
           color: '#BF616A',
           borderColor: 'rgba(191,97,106,0.45)',
         };
       }
       if (p === 'high') {
         return {
-          background: 'rgba(208,135,112,0.15)', // orange
+          background: 'rgba(208,135,112,0.15)',
           color: '#D08770',
           borderColor: 'rgba(208,135,112,0.45)',
         };
       }
       if (p === 'low') {
         return {
-          background: 'rgba(180,142,173,0.15)', // purple
+          background: 'rgba(180,142,173,0.15)',
           color: '#B48EAD',
           borderColor: 'rgba(180,142,173,0.45)',
         };
       }
       return {
-        background: 'rgba(136,192,208,0.15)', // teal/blue for medium
+        background: 'rgba(136,192,208,0.15)',
         color: '#88C0D0',
         borderColor: 'rgba(136,192,208,0.45)',
       };
@@ -154,7 +157,7 @@ export default function WorkItemDetailPage() {
   return (
     <div className="dashboard">
       <div className="dashboard-header project-details-header">
-        {/* Title row with key box + title on left, tags on right */}
+        {/* Title row with key box + title on left */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', minWidth: 0 }}>
           <div
             title={itemKey}
@@ -178,32 +181,8 @@ export default function WorkItemDetailPage() {
           </h2>
         </div>
 
+        {/* Back button aligned right in header */}
         <div className="dashboard-actions" style={{ flexWrap: 'wrap' }}>
-          {/* Right aligned colored tags */}
-          {!loading && workItem ? (
-            <>
-              <span
-                style={{ ...tagStyles.base, ...tagStyles.type(workItem.item_type) }}
-                title={`Type: ${human.type(workItem.item_type)}`}
-              >
-                {human.type(workItem.item_type)}
-              </span>
-              <span
-                style={{ ...tagStyles.base, ...tagStyles.status(workItem.status) }}
-                title={`Status: ${human.status(workItem.status)}`}
-              >
-                {human.status(workItem.status)}
-              </span>
-              <span
-                style={{ ...tagStyles.base, ...tagStyles.priority(workItem.priority) }}
-                title={`Priority: ${human.priority(workItem.priority)}`}
-              >
-                {human.priority(workItem.priority)}
-              </span>
-            </>
-          ) : null}
-
-          {/* Back button */}
           <button
             className="btn btn-secondary back-btn"
             type="button"
@@ -225,62 +204,89 @@ export default function WorkItemDetailPage() {
         <div className="subtitle">Work item not found.</div>
       ) : (
         <div className="project-details" style={{ width: '100%' }}>
-          {/* Description below the title area */}
-          <div style={{ marginBottom: 14 }}>
-            <div className="label" style={{ marginBottom: 6 }}>Description</div>
-            <div
+          {/* Two-column content area */}
+          <div
+            className="wi-two-col"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '4fr 1fr', // ~80% / 20%
+              gap: 16,
+              alignItems: 'start'
+            }}
+          >
+            {/* Left: Description */}
+            <div>
+              <div className="label" style={{ marginBottom: 6 }}>Description</div>
+              <div
+                style={{
+                  background: 'var(--surface-alt)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 10,
+                  padding: 12,
+                  whiteSpace: 'pre-wrap',
+                  color: 'var(--text)',
+                }}
+              >
+                {workItem.description || '—'}
+              </div>
+            </div>
+
+            {/* Right: Tags and Created-on with subtle left divider */}
+            <aside
               style={{
-                background: 'var(--surface-alt)',
-                border: '1px solid var(--border)',
-                borderRadius: 10,
-                padding: 12,
-                whiteSpace: 'pre-wrap',
-                color: 'var(--text)',
+                borderLeft: '1px solid var(--border)',
+                paddingLeft: 16,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+                position: 'relative',
               }}
             >
-              {workItem.description || '—'}
-            </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <span
+                  style={{ ...tagStyles.base, ...tagStyles.type(workItem.item_type) }}
+                  title={`Type: ${human.type(workItem.item_type)}`}
+                >
+                  {human.type(workItem.item_type)}
+                </span>
+                <span
+                  style={{ ...tagStyles.base, ...tagStyles.status(workItem.status) }}
+                  title={`Status: ${human.status(workItem.status)}`}
+                >
+                  {human.status(workItem.status)}
+                </span>
+                <span
+                  style={{ ...tagStyles.base, ...tagStyles.priority(workItem.priority) }}
+                  title={`Priority: ${human.priority(workItem.priority)}`}
+                >
+                  {human.priority(workItem.priority)}
+                </span>
+              </div>
+
+              <div style={{ marginTop: 4 }}>
+                <div className="label" style={{ marginBottom: 4 }}>Created on</div>
+                <div style={{ color: 'var(--text)' }}>{human.dateTime(workItem.created_at)}</div>
+              </div>
+            </aside>
           </div>
 
-          {/* Meta details grid/table */}
-          <div className="work-items-table" style={{ overflowX: 'auto', background: 'var(--surface)' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <tbody>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px', color: 'var(--text-dim)', width: 200 }}>Item Key</th>
-                  <td style={{ padding: '10px', fontWeight: 600, color: 'var(--nord8)' }}>{itemKey}</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px', color: 'var(--text-dim)' }}>Project ID</th>
-                  <td style={{ padding: '10px' }}>{workItem.project_id || projectId || '—'}</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px', color: 'var(--text-dim)' }}>Item ID</th>
-                  <td style={{ padding: '10px' }}>{workItem.id ?? '—'}</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px', color: 'var(--text-dim)' }}>Type</th>
-                  <td style={{ padding: '10px' }}>{human.type(workItem.item_type)}</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px', color: 'var(--text-dim)' }}>Title</th>
-                  <td style={{ padding: '10px' }}>{workItem.title || '—'}</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px', color: 'var(--text-dim)' }}>Status</th>
-                  <td style={{ padding: '10px' }}>{human.status(workItem.status)}</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px', color: 'var(--text-dim)' }}>Priority</th>
-                  <td style={{ padding: '10px' }}>{human.priority(workItem.priority)}</td>
-                </tr>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th style={{ textAlign: 'left', padding: '10px', color: 'var(--text-dim)' }}>Created At</th>
-                  <td style={{ padding: '10px' }}>{human.dateTime(workItem.created_at)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {/* Responsive: collapse to single column on small screens */}
+          <style>
+            {`
+              @media (max-width: 860px) {
+                .wi-two-col {
+                  display: block;
+                }
+                .wi-two-col > aside {
+                  border-left: none !important;
+                  padding-left: 0 !important;
+                  margin-top: 12px;
+                  border-top: 1px solid var(--border);
+                  padding-top: 12px;
+                }
+              }
+            `}
+          </style>
         </div>
       )}
     </div>
