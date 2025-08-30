@@ -229,6 +229,7 @@
 .project-details {
   margin-top: 28px;
   width: 100%;
+  /* default surface for sections; can be overridden inline where needed */
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;

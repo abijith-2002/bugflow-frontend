@@ -202,7 +202,13 @@ export default function WorkItemDetailPage() {
       ) : !workItem ? (
         <div className="subtitle">Work item not found.</div>
       ) : (
-        <div className="project-details" style={{ width: '100%' }}>
+        <div
+          className="project-details"
+          style={{
+            width: '100%',
+            background: 'transparent' /* ensure no background color */,
+          }}
+        >
           {/* Two-column content area with only work item fields */}
           <div
             className="wi-two-col"
