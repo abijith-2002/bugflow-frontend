@@ -222,8 +222,6 @@ export default function WorkItemDetailPage() {
             {/* Left: Description only */}
             <div>
               <div className="label" style={{ marginBottom: 6 }}>Description</div>
-              {/* Divider directly under the Description heading */}
-              <div style={{ height: 1, background: 'var(--border)', margin: '6px 0 10px 0' }} />
               <div
                 style={{
                   /* Minimalist: plain background, no borders or box styling */
