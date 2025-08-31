@@ -68,6 +68,36 @@ export async function apiGet(path, params) {
 }
 
 // PUBLIC_INTERFACE
+export async function apiPatch(path, body) {
+  /** Sends a JSON PATCH request to the backend and returns parsed JSON or throws an error. */
+  const base = getApiBaseUrl();
+  const resp = await fetch(`${base}${path}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body ?? {}),
+  });
+
+  const text = await resp.text();
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    // ignore parse errors
+  }
+
+  if (!resp.ok) {
+    const message =
+      (data && (data.detail || data.message || data.error)) ||
+      `Request failed with status ${resp.status}`;
+    const error = new Error(message);
+    error.status = resp.status;
+    error.data = data;
+    throw error;
+  }
+  return data;
+}
+
+// PUBLIC_INTERFACE
 export async function getWorkItems({ projectId } = {}) {
   /** 
    * Fetch work items from backend, optionally filtered by project_id.
@@ -96,6 +126,14 @@ export async function createWorkItem({ project_id, item_type, title, description
     created_at: created_at ?? new Date().toISOString(),
   };
   return apiPost('/work-items', payload);
+}
+
+// PUBLIC_INTERFACE
+export async function updateWorkItemStatus({ project_id, id, status }) {
+  /** Calls PATCH /work-items/{project_id}/{id}/status to update a work item's status. */
+  if (!project_id || (!id && id !== 0)) throw new Error('project_id and id are required');
+  if (!status) throw new Error('status is required');
+  return apiPatch(`/work-items/${project_id}/${id}/status`, { status });
 }
 
 // PUBLIC_INTERFACE

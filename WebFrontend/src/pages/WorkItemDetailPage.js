@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getWorkItems } from '../api';
+import { getWorkItems, updateWorkItemStatus } from '../api';
 import '../styles/DashboardPage.css';
 import { FaAngleLeft } from 'react-icons/fa';
 
@@ -21,6 +21,8 @@ export default function WorkItemDetailPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [workItem, setWorkItem] = useState(null);
+  const [statusSaving, setStatusSaving] = useState(false);
+  const [statusError, setStatusError] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -153,6 +155,28 @@ export default function WorkItemDetailPage() {
 
   const itemKey = workItem?.item_key || '—';
 
+  // PUBLIC_INTERFACE
+  const onChangeStatus = async (e) => {
+    /** Update the work item status via backend PATCH and reflect it locally. */
+    const next = e.target.value; // 'open' | 'in_progress' | 'closed'
+    if (!workItem) return;
+    setStatusError('');
+    setStatusSaving(true);
+    try {
+      const updated = await updateWorkItemStatus({
+        project_id: workItem.project_id,
+        id: workItem.id,
+        status: next,
+      });
+      // Merge updated fields; prefer backend response if provided
+      setWorkItem((prev) => ({ ...(prev || {}), ...(updated || {}), status: (updated?.status ?? next) }));
+    } catch (patchErr) {
+      setStatusError(patchErr?.message || 'Failed to update status');
+    } finally {
+      setStatusSaving(false);
+    }
+  };
+
   return (
     <div className="dashboard">
       <div className="dashboard-header project-details-header">
@@ -236,7 +260,7 @@ export default function WorkItemDetailPage() {
               </div>
             </div>
 
-            {/* Right: Tags and Created-on */}
+            {/* Right: Tags, Status control and Created-on */}
             <aside
               style={{
                 borderLeft: '1px solid var(--border)',
@@ -266,6 +290,23 @@ export default function WorkItemDetailPage() {
                 >
                   {human.priority(workItem.priority)}
                 </span>
+              </div>
+
+              {/* Status control */}
+              <div>
+                <label className="label" htmlFor="wi-status">Change status</label>
+                <select
+                  id="wi-status"
+                  className="input"
+                  value={(workItem?.status || 'open').toLowerCase()}
+                  onChange={onChangeStatus}
+                  disabled={statusSaving}
+                >
+                  <option value="open">Open</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="closed">Closed</option>
+                </select>
+                {statusError ? <div className="error" role="alert" style={{ marginTop: 8 }}>{statusError}</div> : null}
               </div>
 
               <div style={{ marginTop: 4 }}>
