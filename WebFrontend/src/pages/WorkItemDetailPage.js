@@ -579,7 +579,17 @@ export default function WorkItemDetailPage() {
                         >
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                             <span style={{ fontWeight: 600, color: 'var(--nord8)' }}>
-                              {c?.author_id ? String(c.author_id).slice(0, 8) : 'Anon'}
+                              {(() => {
+                                // Determine display name with priority:
+                                // 1) author_display_name (non-empty string)
+                                // 2) author_id (string; display first 8 chars for brevity)
+                                // 3) 'Anonymous' fallback
+                                const name = (c?.author_display_name ?? '').toString().trim();
+                                if (name) return name;
+                                const aid = c?.author_id ? String(c.author_id).trim() : '';
+                                if (aid) return aid.slice(0, 8);
+                                return 'Anonymous';
+                              })()}
                             </span>
                             <span className="subtitle" style={{ margin: 0 }}>
                               {created ? created : ''}
