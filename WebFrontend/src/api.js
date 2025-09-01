@@ -121,6 +121,31 @@ export async function apiPatch(path, body) {
   return data;
 }
 
+/**
+ * PUBLIC_INTERFACE
+ */
+export async function getWorkItemComments({ project_id, id }) {
+  /** Fetch comments for a specific work item. GET /work-items/{project_id}/{id}/comments */
+  if (!project_id || (!id && id !== 0)) {
+    throw new Error('project_id and id are required');
+  }
+  return apiGet(`/work-items/${project_id}/${id}/comments`);
+}
+
+/**
+ * PUBLIC_INTERFACE
+ */
+export async function addWorkItemComment({ project_id, id, body, author_id = null }) {
+  /** Add a new comment to a work item. POST /work-items/{project_id}/{id}/comments */
+  if (!project_id || (!id && id !== 0)) {
+    throw new Error('project_id and id are required');
+  }
+  if (!body || !String(body).trim()) {
+    throw new Error('Comment body is required');
+  }
+  return apiPost(`/work-items/${project_id}/${id}/comments`, { body: String(body).trim(), author_id });
+}
+
 // PUBLIC_INTERFACE
 export async function getWorkItems({ projectId } = {}) {
   /** 

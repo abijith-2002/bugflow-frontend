@@ -288,6 +288,14 @@
   gap: 8px;
 }
 
+/* Comment list helpers (reuses existing palette) */
+.comment-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
 .item-row {
   display: grid;
   grid-template-columns: auto 1fr auto;

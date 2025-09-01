@@ -1,6 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getWorkItems, updateWorkItemStatus, apiDelete, apiPatch } from '../api';
+import {
+  getWorkItems,
+  updateWorkItemStatus,
+  apiDelete,
+  apiPatch,
+  getWorkItemComments,
+  addWorkItemComment
+} from '../api';
 import '../styles/DashboardPage.css';
 import { FaAngleLeft } from 'react-icons/fa';
 
@@ -8,13 +15,13 @@ import { FaAngleLeft } from 'react-icons/fa';
  * PUBLIC_INTERFACE
  */
 export default function WorkItemDetailPage() {
-  /** 
+  /**
    * Work Item Detail Page
    * - Route params: :projectId and :itemId.
    * - Loads the item from GET /work-items?project_id and finds by id.
    * - Title and Description are inline editable: click to edit, Enter/blur saves, Escape cancels.
    * - Two-column content area:
-   *     Left: Title + Description
+   *     Left: Title + Description + Comments
    *     Right: Type, Status, Priority, Created-on
    */
   const { projectId, itemId } = useParams();
@@ -43,6 +50,14 @@ export default function WorkItemDetailPage() {
   const titleInputRef = useRef(null);
   const descTextareaRef = useRef(null);
 
+  // Comments state
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentsError, setCommentsError] = useState('');
+  const [newComment, setNewComment] = useState('');
+  const [postingComment, setPostingComment] = useState(false);
+
+  // Load work item (from project items list)
   useEffect(() => {
     let active = true;
     async function load() {
@@ -81,6 +96,26 @@ export default function WorkItemDetailPage() {
       setTimeout(() => descTextareaRef.current?.focus(), 0);
     }
   }, [editingDesc]);
+
+  // Load comments when workItem is available
+  useEffect(() => {
+    let mounted = true;
+    async function loadComments() {
+      if (!workItem?.project_id || workItem?.id === undefined || workItem?.id === null) return;
+      setCommentsLoading(true);
+      setCommentsError('');
+      try {
+        const data = await getWorkItemComments({ project_id: workItem.project_id, id: workItem.id });
+        if (mounted) setComments(Array.isArray(data) ? data : []);
+      } catch (e) {
+        if (mounted) setCommentsError(e?.message || 'Failed to load comments');
+      } finally {
+        if (mounted) setCommentsLoading(false);
+      }
+    }
+    loadComments();
+    return () => { mounted = false; };
+  }, [workItem?.project_id, workItem?.id]);
 
   const human = {
     type: (t) => (t === 'bug' ? 'Bug' : 'Task'),
@@ -308,6 +343,36 @@ export default function WorkItemDetailPage() {
     }
   };
 
+  // PUBLIC_INTERFACE
+  const submitNewComment = async (e) => {
+    /** Post a new comment to the backend and update the local list on success. */
+    e.preventDefault?.();
+    if (!workItem) return;
+    const trimmed = (newComment || '').trim();
+    if (!trimmed) return;
+    setPostingComment(true);
+    setCommentsError('');
+    try {
+      const created = await addWorkItemComment({
+        project_id: workItem.project_id,
+        id: workItem.id,
+        body: trimmed,
+        author_id: null, // backend may infer from auth; keep null for now
+      });
+      if (created && typeof created === 'object') {
+        setComments((prev) => [...prev, created]);
+      } else {
+        const list = await getWorkItemComments({ project_id: workItem.project_id, id: workItem.id });
+        setComments(Array.isArray(list) ? list : []);
+      }
+      setNewComment('');
+    } catch (e2) {
+      setCommentsError(e2?.message || 'Failed to add comment');
+    } finally {
+      setPostingComment(false);
+    }
+  };
+
   return (
     <div className="dashboard">
       <div className="dashboard-header project-details-header">
@@ -469,6 +534,94 @@ export default function WorkItemDetailPage() {
                   style={{ width: '100%' }}
                 />
               )}
+
+              {/* Comments Section */}
+              <div style={{ marginTop: 20 }}>
+                <div className="label" style={{ marginBottom: 6 }}>Comments</div>
+
+                {/* Existing comments */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8,
+                    marginBottom: 10
+                  }}
+                >
+                  {commentsLoading ? (
+                    <div className="subtitle">Loading comments...</div>
+                  ) : commentsError ? (
+                    <div className="error" role="alert">{commentsError}</div>
+                  ) : comments.length === 0 ? (
+                    <div className="subtitle" style={{ color: 'var(--text-dimmer)' }}>
+                      No comments yet. Be the first to comment.
+                    </div>
+                  ) : (
+                    comments.map((c, idx) => {
+                      const created = (() => {
+                        try {
+                          return c?.created_at ? new Date(c.created_at).toLocaleString() : null;
+                        } catch {
+                          return null;
+                        }
+                      })();
+                      return (
+                        <div
+                          key={`${c?.id ?? idx}-${c?.created_at ?? 't'}`}
+                          style={{
+                            background: 'var(--surface)',
+                            border: '1px solid var(--border)',
+                            borderRadius: 8,
+                            padding: '10px 12px',
+                            display: 'grid',
+                            gap: 6,
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                            <span style={{ fontWeight: 600, color: 'var(--nord8)' }}>
+                              {c?.author_id ? String(c.author_id).slice(0, 8) : 'Anon'}
+                            </span>
+                            <span className="subtitle" style={{ margin: 0 }}>
+                              {created ? created : ''}
+                            </span>
+                          </div>
+                          <div style={{ whiteSpace: 'pre-wrap' }}>
+                            {c?.body || ''}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Add comment form */}
+                <form onSubmit={submitNewComment} className="form" style={{ marginTop: 8 }}>
+                  <div>
+                    <label className="label" htmlFor="new-comment">Add a comment</label>
+                    <textarea
+                      id="new-comment"
+                      className="input"
+                      rows={3}
+                      placeholder="Write a comment..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      disabled={postingComment}
+                      required
+                    />
+                  </div>
+                  <div className="row" style={{ justifyContent: 'flex-end' }}>
+                    <button
+                      className="btn"
+                      type="submit"
+                      disabled={postingComment || !newComment.trim()}
+                      title="Post comment"
+                      style={{ width: 'auto' }}
+                    >
+                      {postingComment ? 'Posting...' : 'Post Comment'}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
 
             {/* Right: Tags, Status control and Created-on */}
