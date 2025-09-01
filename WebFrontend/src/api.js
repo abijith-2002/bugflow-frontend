@@ -1,6 +1,30 @@
 import { getApiBaseUrl } from './apiConfig';
 
 // PUBLIC_INTERFACE
+export async function apiDelete(path) {
+  /** Sends a DELETE request to the backend and returns parsed JSON (if any) or null. Throws on non-2xx. */
+  const base = getApiBaseUrl();
+  const resp = await fetch(`${base}${path}`, { method: 'DELETE' });
+  const text = await resp.text();
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    // ignore parse errors
+  }
+  if (!resp.ok) {
+    const message =
+      (data && (data.detail || data.message || data.error)) ||
+      `Request failed with status ${resp.status}`;
+    const error = new Error(message);
+    error.status = resp.status;
+    error.data = data;
+    throw error;
+  }
+  return data;
+}
+
+// PUBLIC_INTERFACE
 export async function apiPost(path, body) {
   /** Sends a JSON POST request to the backend and returns parsed JSON or throws an error with message. */
   const base = getApiBaseUrl();

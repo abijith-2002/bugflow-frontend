@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getWorkItems, updateWorkItemStatus } from '../api';
+import { getWorkItems, updateWorkItemStatus, apiDelete } from '../api';
 import '../styles/DashboardPage.css';
 import { FaAngleLeft } from 'react-icons/fa';
 
@@ -23,6 +23,9 @@ export default function WorkItemDetailPage() {
   const [workItem, setWorkItem] = useState(null);
   const [statusSaving, setStatusSaving] = useState(false);
   const [statusError, setStatusError] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -177,6 +180,24 @@ export default function WorkItemDetailPage() {
     }
   };
 
+  // PUBLIC_INTERFACE
+  const onConfirmDelete = async () => {
+    /** Deletes the current work item by calling DELETE /work-items/{project_id}/{id} and navigates back to project page. */
+    if (!workItem) return;
+    setDeleteError('');
+    setDeleting(true);
+    try {
+      // The backend interface file doesn't explicitly list DELETE, but per request details we call it here.
+      await apiDelete(`/work-items/${workItem.project_id}/${workItem.id}`);
+      // Navigate back to the project page after delete
+      navigate(`/project/${workItem.project_id}`, { replace: true });
+    } catch (errDel) {
+      setDeleteError(errDel?.message || 'Failed to delete work item');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="dashboard">
       <div className="dashboard-header project-details-header">
@@ -216,6 +237,16 @@ export default function WorkItemDetailPage() {
               <FaAngleLeft aria-hidden="true" />
               <span>Back to Project</span>
             </span>
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={() => { setShowDeleteConfirm(true); setDeleteError(''); }}
+            aria-label="Delete this work item"
+            style={{ background: 'var(--nord11)', borderColor: 'var(--nord11)' }}
+            disabled={!workItem}
+          >
+            Delete
           </button>
         </div>
       </div>
@@ -333,6 +364,42 @@ export default function WorkItemDetailPage() {
               }
             `}
           </style>
+        </div>
+      )}
+
+      {showDeleteConfirm && (
+        <div className="modal-backdrop" role="presentation">
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-item-title"
+          >
+            <h2 id="delete-item-title" className="modal-title">Delete Work Item</h2>
+            <p className="modal-subtitle">
+              Are you sure you want to delete <span className="code">{workItem?.item_key || 'this item'}</span>? This action cannot be undone.
+            </p>
+            {deleteError ? <div className="error" role="alert">{deleteError}</div> : null}
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={onConfirmDelete}
+                disabled={deleting}
+                style={{ background: 'var(--nord11)', borderColor: 'var(--nord11)' }}
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
