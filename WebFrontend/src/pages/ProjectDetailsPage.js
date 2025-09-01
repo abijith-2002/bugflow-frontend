@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { apiGet, getWorkItems, buildUrl, createWorkItem } from '../api';
+import { apiGet, getWorkItems, buildUrl, createWorkItem, apiDelete } from '../api';
 import '../styles/DashboardPage.css'; // reuse existing styles for lists/cards
 import { FaAngleLeft, FaPlus } from 'react-icons/fa';
 
@@ -39,6 +39,11 @@ export default function ProjectDetailsPage() {
   const [formDesc, setFormDesc] = useState('');
   const [formStatus, setFormStatus] = useState('open'); // 'open' | 'in_progress' | 'closed'
   const [formPriority, setFormPriority] = useState('medium'); // 'low' | 'medium' | 'high' | 'critical'
+
+  // Delete project dialog state
+  const [showDeleteProject, setShowDeleteProject] = useState(false);
+  const [deleteProjectError, setDeleteProjectError] = useState('');
+  const [deletingProject, setDeletingProject] = useState(false);
 
   // Load project list and pick the one with matching id.
   useEffect(() => {
@@ -256,6 +261,24 @@ export default function ProjectDetailsPage() {
     }
   };
 
+  // PUBLIC_INTERFACE
+  const onConfirmDeleteProject = async () => {
+    /** Deletes the current project by issuing DELETE /projects/{id} and redirects to dashboard on success. */
+    if (!project || !project.id) return;
+    setDeleteProjectError('');
+    setDeletingProject(true);
+    try {
+      // Try DELETE /projects/{id}. Backend may return 204 No Content or 200 with body.
+      await apiDelete(`/projects/${project.id}`);
+      // After successful deletion, go back to dashboard
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      setDeleteProjectError(err?.message || 'Failed to delete project');
+    } finally {
+      setDeletingProject(false);
+    }
+  };
+
   return (
     <div className="dashboard">
       <div className="dashboard-header project-details-header">
@@ -277,6 +300,16 @@ export default function ProjectDetailsPage() {
               <FaPlus aria-hidden="true" />
               <span>Create Item</span>
             </span>
+          </button>
+          <button
+            className="btn"
+            type="button"
+            onClick={() => { setShowDeleteProject(true); setDeleteProjectError(''); }}
+            aria-label="Delete this project"
+            style={{ background: 'var(--nord11)', borderColor: 'var(--nord11)' }}
+            disabled={!project}
+          >
+            Delete Project
           </button>
         </div>
       </div>
@@ -490,6 +523,43 @@ export default function ProjectDetailsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {showDeleteProject && (
+        <div className="modal-backdrop" role="presentation">
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-project-title"
+          >
+            <h2 id="delete-project-title" className="modal-title">Delete Project</h2>
+            <p className="modal-subtitle">
+              Are you sure you want to delete{' '}
+              <span className="code">{project?.name || 'this project'}</span>? This will remove the project and all its items. This action cannot be undone.
+            </p>
+            {deleteProjectError ? <div className="error" role="alert">{deleteProjectError}</div> : null}
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowDeleteProject(false)}
+                disabled={deletingProject}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={onConfirmDeleteProject}
+                disabled={deletingProject}
+                style={{ background: 'var(--nord11)', borderColor: 'var(--nord11)' }}
+              >
+                {deletingProject ? 'Deleting...' : 'Delete Project'}
+              </button>
+            </div>
           </div>
         </div>
       )}
