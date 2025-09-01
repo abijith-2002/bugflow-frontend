@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getWorkItems, updateWorkItemStatus, apiDelete } from '../api';
+import { getWorkItems, updateWorkItemStatus, apiDelete, apiPatch } from '../api';
 import '../styles/DashboardPage.css';
 import { FaAngleLeft } from 'react-icons/fa';
 
@@ -12,8 +12,9 @@ export default function WorkItemDetailPage() {
    * - Loads the item from GET /work-items?project_id and finds by id.
    * - Focused layout: Only work item details are shown. No project-level sections.
    * - Two-column content area:
-   *     Left: Description
+   *     Left: Title (editable) and Description (editable)
    *     Right: Type, Status, Priority, Created-on
+   * - Inline edit of title/description with Save/Cancel and backend PATCH calls.
    */
   const { projectId, itemId } = useParams();
   const navigate = useNavigate();
@@ -21,11 +22,23 @@ export default function WorkItemDetailPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [workItem, setWorkItem] = useState(null);
+
+  // Status state
   const [statusSaving, setStatusSaving] = useState(false);
   const [statusError, setStatusError] = useState('');
+
+  // Delete state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
+
+  // Local edit state for title/description
+  const [editMode, setEditMode] = useState(false);
+  const [titleDraft, setTitleDraft] = useState('');
+  const [descDraft, setDescDraft] = useState('');
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -41,6 +54,9 @@ export default function WorkItemDetailPage() {
         const found = Array.isArray(items) ? items.find(w => Number(w?.id) === nid) : null;
         if (active) {
           setWorkItem(found || null);
+          // initialize drafts with existing values
+          setTitleDraft(found?.title || '');
+          setDescDraft(found?.description || '');
         }
       } catch (e) {
         if (active) setErr(e?.message || 'Failed to load work item');
@@ -187,9 +203,7 @@ export default function WorkItemDetailPage() {
     setDeleteError('');
     setDeleting(true);
     try {
-      // The backend interface file doesn't explicitly list DELETE, but per request details we call it here.
       await apiDelete(`/work-items/${workItem.project_id}/${workItem.id}`);
-      // Navigate back to the project page after delete
       navigate(`/project/${workItem.project_id}`, { replace: true });
     } catch (errDel) {
       setDeleteError(errDel?.message || 'Failed to delete work item');
@@ -197,6 +211,49 @@ export default function WorkItemDetailPage() {
       setDeleting(false);
     }
   };
+
+  const startEdit = () => {
+    setSaveError('');
+    setSaveSuccess('');
+    setTitleDraft(workItem?.title || '');
+    setDescDraft(workItem?.description || '');
+    setEditMode(true);
+  };
+
+  const cancelEdit = () => {
+    setSaveError('');
+    setSaveSuccess('');
+    setTitleDraft(workItem?.title || '');
+    setDescDraft(workItem?.description || '');
+    setEditMode(false);
+  };
+
+  // PUBLIC_INTERFACE
+  async function saveEdits() {
+    /** Save title/description edits via PATCH /work-items/{project_id}/{id}. */
+    if (!workItem) return;
+    const newTitle = (titleDraft || '').trim();
+    if (!newTitle) {
+      setSaveError('Title cannot be empty.');
+      return;
+    }
+    setSaveLoading(true);
+    setSaveError('');
+    setSaveSuccess('');
+    try {
+      // Backend spec doesn't explicitly list this endpoint, but consistent with status endpoint:
+      // PATCH /work-items/{project_id}/{id} with { title, description }
+      const payload = { title: newTitle, description: (descDraft || '').trim() || null };
+      const updated = await apiPatch(`/work-items/${workItem.project_id}/${workItem.id}`, payload);
+      setWorkItem(prev => ({ ...(prev || {}), ...(updated || {}), title: updated?.title ?? newTitle, description: updated?.description ?? payload.description }));
+      setSaveSuccess('Saved successfully.');
+      setEditMode(false);
+    } catch (e) {
+      setSaveError(e?.message || 'Failed to save changes');
+    } finally {
+      setSaveLoading(false);
+    }
+  }
 
   return (
     <div className="dashboard">
@@ -252,6 +309,9 @@ export default function WorkItemDetailPage() {
       </div>
 
       {err ? <div className="error" role="alert" style={{ marginBottom: 12 }}>{err}</div> : null}
+      {saveError ? <div className="error" role="alert" style={{ marginBottom: 12 }}>{saveError}</div> : null}
+      {saveSuccess ? <div className="success" role="status" style={{ marginBottom: 12 }}>{saveSuccess}</div> : null}
+
       {loading ? (
         <div className="subtitle">Loading work item...</div>
       ) : !workItem ? (
@@ -264,7 +324,7 @@ export default function WorkItemDetailPage() {
             background: 'transparent' /* ensure no background color */,
           }}
         >
-          {/* Two-column content area with only work item fields */}
+          {/* Two-column content area */}
           <div
             className="wi-two-col"
             style={{
@@ -274,20 +334,84 @@ export default function WorkItemDetailPage() {
               alignItems: 'start'
             }}
           >
-            {/* Left: Description only */}
+            {/* Left: Title + Description (both editable) */}
             <div>
-              <div className="label" style={{ marginBottom: 6 }}>Description</div>
-              <div
-                style={{
-                  /* Minimalist: plain background, no borders or box styling */
-                  background: 'transparent',
-                  border: 'none',
-                  padding: 0,
-                  whiteSpace: 'pre-wrap',
-                  color: 'var(--text)',
-                }}
-              >
-                {workItem.description || '—'}
+              <div style={{ marginBottom: 12 }}>
+                <label className="label" htmlFor="wi-title">Title</label>
+                {editMode ? (
+                  <input
+                    id="wi-title"
+                    className="input"
+                    type="text"
+                    value={titleDraft}
+                    onChange={e => setTitleDraft(e.target.value)}
+                    placeholder="Short title"
+                    maxLength={200}
+                    required
+                  />
+                ) : (
+                  <div style={{ fontWeight: 600, fontSize: 18 }}>{workItem.title || '—'}</div>
+                )}
+              </div>
+
+              <div>
+                <label className="label" htmlFor="wi-desc">Description</label>
+                {editMode ? (
+                  <textarea
+                    id="wi-desc"
+                    className="input"
+                    rows={6}
+                    value={descDraft}
+                    onChange={e => setDescDraft(e.target.value)}
+                    placeholder="Describe the task or bug"
+                  />
+                ) : (
+                  <div
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      padding: 0,
+                      whiteSpace: 'pre-wrap',
+                      color: 'var(--text)',
+                    }}
+                  >
+                    {workItem.description || '—'}
+                  </div>
+                )}
+              </div>
+
+              {/* Edit actions */}
+              <div className="modal-actions" style={{ marginTop: 12 }}>
+                {!editMode ? (
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={startEdit}
+                    disabled={!workItem}
+                    aria-label="Edit title and description"
+                  >
+                    Edit
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={cancelEdit}
+                      disabled={saveLoading}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={saveEdits}
+                      disabled={saveLoading}
+                    >
+                      {saveLoading ? 'Saving...' : 'Save'}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
