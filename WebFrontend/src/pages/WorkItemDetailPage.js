@@ -1,18 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getWorkItems, updateWorkItemStatus, apiDelete } from '../api';
+import { getWorkItems, updateWorkItemStatus, apiDelete, apiPatch } from '../api';
 import '../styles/DashboardPage.css';
 import { FaAngleLeft } from 'react-icons/fa';
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ */
 export default function WorkItemDetailPage() {
   /** 
    * Work Item Detail Page
    * - Route params: :projectId and :itemId.
    * - Loads the item from GET /work-items?project_id and finds by id.
-   * - Focused layout: Only work item details are shown. No project-level sections.
+   * - Title and Description are inline editable: click to edit, Enter/blur saves, Escape cancels.
    * - Two-column content area:
-   *     Left: Description
+   *     Left: Title + Description
    *     Right: Type, Status, Priority, Created-on
    */
   const { projectId, itemId } = useParams();
@@ -21,11 +23,25 @@ export default function WorkItemDetailPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
   const [workItem, setWorkItem] = useState(null);
+
+  // Status update state
   const [statusSaving, setStatusSaving] = useState(false);
   const [statusError, setStatusError] = useState('');
+
+  // Delete state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
+
+  // Inline edit states
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [titleDraft, setTitleDraft] = useState('');
+  const [descDraft, setDescDraft] = useState('');
+  const [fieldSaving, setFieldSaving] = useState(null); // 'title' | 'description' | null
+  const [fieldError, setFieldError] = useState('');     // error message for title/description save
+  const titleInputRef = useRef(null);
+  const descTextareaRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -41,6 +57,8 @@ export default function WorkItemDetailPage() {
         const found = Array.isArray(items) ? items.find(w => Number(w?.id) === nid) : null;
         if (active) {
           setWorkItem(found || null);
+          setTitleDraft(found?.title || '');
+          setDescDraft(found?.description || '');
         }
       } catch (e) {
         if (active) setErr(e?.message || 'Failed to load work item');
@@ -51,6 +69,18 @@ export default function WorkItemDetailPage() {
     load();
     return () => { active = false; };
   }, [projectId, itemId]);
+
+  // Focus input/textarea on entering edit mode
+  useEffect(() => {
+    if (editingTitle) {
+      setTimeout(() => titleInputRef.current?.focus(), 0);
+    }
+  }, [editingTitle]);
+  useEffect(() => {
+    if (editingDesc) {
+      setTimeout(() => descTextareaRef.current?.focus(), 0);
+    }
+  }, [editingDesc]);
 
   const human = {
     type: (t) => (t === 'bug' ? 'Bug' : 'Task'),
@@ -171,12 +201,94 @@ export default function WorkItemDetailPage() {
         id: workItem.id,
         status: next,
       });
-      // Merge updated fields; prefer backend response if provided
       setWorkItem((prev) => ({ ...(prev || {}), ...(updated || {}), status: (updated?.status ?? next) }));
     } catch (patchErr) {
       setStatusError(patchErr?.message || 'Failed to update status');
     } finally {
       setStatusSaving(false);
+    }
+  };
+
+  // Helpers for PATCHing a field
+  const patchField = async (fieldName, value) => {
+    if (!workItem) return null;
+    // Assuming backend supports generic field patch at /work-items/{project_id}/{id}
+    const body = { [fieldName]: value };
+    return apiPatch(`/work-items/${workItem.project_id}/${workItem.id}`, body);
+  };
+
+  // Save title (on blur or Enter)
+  const saveTitle = async () => {
+    if (!workItem) return;
+    const trimmed = (titleDraft || '').trim();
+    if (!trimmed) {
+      // Restore to previous if emptied
+      setTitleDraft(workItem.title || '');
+      setEditingTitle(false);
+      return;
+    }
+    if (trimmed === workItem.title) {
+      setEditingTitle(false);
+      return;
+    }
+    setFieldError('');
+    setFieldSaving('title');
+    try {
+      const updated = await patchField('title', trimmed);
+      setWorkItem((prev) => ({ ...(prev || {}), ...(updated || {}), title: updated?.title ?? trimmed }));
+      setEditingTitle(false);
+    } catch (e) {
+      setFieldError(e?.message || 'Failed to save title');
+      // keep editing mode to allow correction
+    } finally {
+      setFieldSaving(null);
+    }
+  };
+
+  // Save description (on blur or Enter)
+  const saveDesc = async () => {
+    if (!workItem) return;
+    const normalized = (descDraft || '').trim();
+    if ((workItem.description || '') === normalized) {
+      setEditingDesc(false);
+      return;
+    }
+    setFieldError('');
+    setFieldSaving('description');
+    try {
+      const updated = await patchField('description', normalized || null);
+      setWorkItem((prev) => ({ ...(prev || {}), ...(updated || {}), description: updated?.description ?? (normalized || null) }));
+      setEditingDesc(false);
+    } catch (e) {
+      setFieldError(e?.message || 'Failed to save description');
+    } finally {
+      setFieldSaving(null);
+    }
+  };
+
+  // Key handlers
+  const onTitleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Save on Enter
+      saveTitle();
+    } else if (e.key === 'Escape') {
+      // Undo changes
+      setTitleDraft(workItem?.title || '');
+      setEditingTitle(false);
+      setFieldError('');
+    }
+  };
+
+  const onDescKeyDown = (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      // Ctrl/Cmd+Enter to save multiline, preserving Enter for newlines
+      e.preventDefault();
+      saveDesc();
+    } else if (e.key === 'Escape') {
+      setDescDraft(workItem?.description || '');
+      setEditingDesc(false);
+      setFieldError('');
     }
   };
 
@@ -187,9 +299,7 @@ export default function WorkItemDetailPage() {
     setDeleteError('');
     setDeleting(true);
     try {
-      // The backend interface file doesn't explicitly list DELETE, but per request details we call it here.
       await apiDelete(`/work-items/${workItem.project_id}/${workItem.id}`);
-      // Navigate back to the project page after delete
       navigate(`/project/${workItem.project_id}`, { replace: true });
     } catch (errDel) {
       setDeleteError(errDel?.message || 'Failed to delete work item');
@@ -220,9 +330,44 @@ export default function WorkItemDetailPage() {
           >
             {itemKey}
           </div>
-          <h2 style={{ margin: 0, fontSize: 20, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {pageTitle}
-          </h2>
+
+          {/* Inline editable title */}
+          <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+            {!editingTitle ? (
+              <h2
+                style={{
+                  margin: 0,
+                  fontSize: 20,
+                  minWidth: 0,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  cursor: 'text',
+                }}
+                title="Click to edit title"
+                onClick={() => {
+                  setFieldError('');
+                  setTitleDraft(workItem?.title || '');
+                  setEditingTitle(true);
+                }}
+              >
+                {pageTitle}
+              </h2>
+            ) : (
+              <input
+                ref={titleInputRef}
+                className="input"
+                type="text"
+                aria-label="Edit title"
+                value={titleDraft}
+                onChange={(e) => setTitleDraft(e.target.value)}
+                onBlur={saveTitle}
+                onKeyDown={onTitleKeyDown}
+                disabled={fieldSaving === 'title'}
+                style={{ maxWidth: 520, paddingTop: 8, paddingBottom: 8 }}
+              />
+            )}
+          </div>
         </div>
 
         {/* Keep a simple back link, but do not render any project details */}
@@ -252,6 +397,8 @@ export default function WorkItemDetailPage() {
       </div>
 
       {err ? <div className="error" role="alert" style={{ marginBottom: 12 }}>{err}</div> : null}
+      {fieldError ? <div className="error" role="alert" style={{ marginBottom: 12 }}>{fieldError}</div> : null}
+
       {loading ? (
         <div className="subtitle">Loading work item...</div>
       ) : !workItem ? (
@@ -261,7 +408,7 @@ export default function WorkItemDetailPage() {
           className="project-details"
           style={{
             width: '100%',
-            background: 'transparent' /* ensure no background color */,
+            background: 'transparent',
           }}
         >
           {/* Two-column content area with only work item fields */}
@@ -274,21 +421,54 @@ export default function WorkItemDetailPage() {
               alignItems: 'start'
             }}
           >
-            {/* Left: Description only */}
+            {/* Left: Title (already in header) and editable Description */}
             <div>
               <div className="label" style={{ marginBottom: 6 }}>Description</div>
-              <div
-                style={{
-                  /* Minimalist: plain background, no borders or box styling */
-                  background: 'transparent',
-                  border: 'none',
-                  padding: 0,
-                  whiteSpace: 'pre-wrap',
-                  color: 'var(--text)',
-                }}
-              >
-                {workItem.description || '—'}
-              </div>
+              {!editingDesc ? (
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    setFieldError('');
+                    setDescDraft(workItem?.description || '');
+                    setEditingDesc(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setFieldError('');
+                      setDescDraft(workItem?.description || '');
+                      setEditingDesc(true);
+                    }
+                  }}
+                  title="Click to edit description"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    padding: 0,
+                    whiteSpace: 'pre-wrap',
+                    color: 'var(--text)',
+                    cursor: 'text',
+                    minHeight: 24,
+                  }}
+                >
+                  {workItem.description || '—'}
+                </div>
+              ) : (
+                <textarea
+                  ref={descTextareaRef}
+                  className="input"
+                  rows={6}
+                  aria-label="Edit description"
+                  value={descDraft}
+                  onChange={(e) => setDescDraft(e.target.value)}
+                  onBlur={saveDesc}
+                  onKeyDown={onDescKeyDown}
+                  disabled={fieldSaving === 'description'}
+                  placeholder="Add more details..."
+                  style={{ width: '100%' }}
+                />
+              )}
             </div>
 
             {/* Right: Tags, Status control and Created-on */}
