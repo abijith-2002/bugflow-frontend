@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiPost } from '../api';
 import { saveAuth, isAuthenticated } from '../auth';
+import { fetchDisplayNameByUserId } from '../supabaseClient';
 
 // PUBLIC_INTERFACE
 export default function LoginPage() {
@@ -44,8 +45,21 @@ export default function LoginPage() {
       if (!access_token) {
         throw new Error('Invalid login response: missing access token');
       }
-      // Save token (and a simple user object if provided)
-      saveAuth({ access_token, token_type, user: user_id ? { id: user_id } : undefined });
+
+      // Use the returned user_id to retrieve the Supabase display name
+      let displayName = null;
+      try {
+        if (user_id) {
+          displayName = await fetchDisplayNameByUserId(user_id);
+        }
+      } catch (e) {
+        // Non-fatal; keep null and fallback in UI
+        // console.warn('Failed to fetch display name:', e?.message);
+      }
+
+      // Save token and attach the fetched displayName with the user id
+      const userPayload = user_id ? { id: user_id, displayName: displayName || null } : undefined;
+      saveAuth({ access_token, token_type, user: userPayload });
       setAuthed({ ok: true });
     } catch (err) {
       setError(err?.message || 'Login failed');

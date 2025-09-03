@@ -12,7 +12,9 @@ const AUTH_USER_KEY = 'bugflow.auth.user';
  */
 // PUBLIC_INTERFACE
 export function saveAuth({ access_token, user, token_type = 'bearer' }) {
-  /** Persist authentication info (token and basic user) to localStorage. */
+  /** Persist authentication info (token and basic user) to localStorage.
+   * If `user.displayName` is provided (e.g., fetched from Supabase), it's stored and later preferred.
+   */
   if (!access_token) return;
   try {
     localStorage.setItem(AUTH_TOKEN_KEY, JSON.stringify({ access_token, token_type }));
@@ -20,7 +22,10 @@ export function saveAuth({ access_token, user, token_type = 'bearer' }) {
       const normalized = (() => {
         if (!user || typeof user !== 'object') return user;
         const u = { ...user };
-        // Try to compute a displayName we can show in the UI
+        // Preserve provided displayName if any; otherwise compute a best-effort fallback.
+        const pre = (typeof u.displayName === 'string' && u.displayName.trim()) || null;
+        if (pre) return { ...u, displayName: pre };
+
         const meta = u.user_metadata || u.app_metadata || {};
         const email = typeof u.email === 'string' ? u.email : '';
         const emailName = email.includes('@') ? email.split('@')[0] : '';
