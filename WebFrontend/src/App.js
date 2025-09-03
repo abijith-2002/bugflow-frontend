@@ -35,8 +35,27 @@ function useOutsideClick(ref, onOutside) {
 function UserAvatar() {
   /** Renders a circular avatar at top-right showing initials and display name, with a dropdown for logout. */
   const [open, setOpen] = useState(false);
+  const [version, setVersion] = useState(0); // bump to re-read getDisplayName on auth changes
   const wrapRef = useRef(null);
   useOutsideClick(wrapRef, () => setOpen(false));
+
+  // Listen to cross-tab storage events and in-tab custom auth change events
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (!e) return;
+      // React only when our auth-related keys change
+      if (e.key === 'bugflow.auth.user' || e.key === 'bugflow.auth.token' || e.key === null) {
+        setVersion((v) => v + 1);
+      }
+    };
+    const onLocal = () => setVersion((v) => v + 1);
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('bugflow:auth-changed', onLocal);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('bugflow:auth-changed', onLocal);
+    };
+  }, []);
 
   const name = getDisplayName();
   const initials = (() => {

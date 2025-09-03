@@ -41,6 +41,13 @@ export function saveAuth({ access_token, user, token_type = 'bearer' }) {
 
       localStorage.setItem(AUTH_USER_KEY, JSON.stringify(normalized));
     }
+    // Notify current tab listeners immediately that auth changed
+    try {
+      const evt = new Event('bugflow:auth-changed');
+      window.dispatchEvent(evt);
+    } catch {
+      // ignore
+    }
   } catch {
     // ignore storage errors
   }
@@ -88,6 +95,13 @@ export function clearAuth() {
   try {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
+    // Emit change event so components can react (both same-tab and across tabs via 'storage')
+    try {
+      const evt = new Event('bugflow:auth-changed');
+      window.dispatchEvent(evt);
+    } catch {
+      // ignore
+    }
   } catch {
     // ignore
   }
