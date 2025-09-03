@@ -2,6 +2,13 @@
 
 This project provides a minimal React template with a clean, modern UI and minimal dependencies.
 
+## Authentication and Protected Routes
+
+- After a successful login (`POST /auth/login`), the returned `access_token` is stored in `localStorage` under `bugflow.auth.token`.
+- All subsequent API requests automatically include `Authorization: Bearer <token>` when a token is present.
+- Protected routes (`/dashboard`, `/project/:id`, `/project/:projectId/item/:itemId`) are wrapped with a `ProtectedRoute` guard that redirects unauthenticated users to `/login`.
+- Auth helpers live in `src/auth.js` with functions like `saveAuth`, `isAuthenticated`, and `clearAuth`.
+
 ## Features
 
 - **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React

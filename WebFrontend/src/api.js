@@ -1,10 +1,19 @@
 import { getApiBaseUrl } from './apiConfig';
+import { getAuthHeaderValue } from './auth';
+
+// Helper: build headers with Authorization if token available
+function withAuthHeaders(extra = {}) {
+  const headers = { ...(extra || {}) };
+  const auth = getAuthHeaderValue();
+  if (auth) headers['Authorization'] = auth;
+  return headers;
+}
 
 // PUBLIC_INTERFACE
 export async function apiDelete(path) {
   /** Sends a DELETE request to the backend and returns parsed JSON (if any) or null. Throws on non-2xx. */
   const base = getApiBaseUrl();
-  const resp = await fetch(`${base}${path}`, { method: 'DELETE' });
+  const resp = await fetch(`${base}${path}`, { method: 'DELETE', headers: withAuthHeaders() });
   const text = await resp.text();
   let data = null;
   try {
@@ -30,7 +39,7 @@ export async function apiPost(path, body) {
   const base = getApiBaseUrl();
   const resp = await fetch(`${base}${path}`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(body ?? {}),
   });
 
@@ -70,7 +79,7 @@ export async function apiGet(path, params) {
     });
   }
 
-  const resp = await fetch(url.toString(), { method: 'GET' });
+  const resp = await fetch(url.toString(), { method: 'GET', headers: withAuthHeaders() });
   const text = await resp.text();
   let data = null;
   try {
@@ -97,7 +106,7 @@ export async function apiPatch(path, body) {
   const base = getApiBaseUrl();
   const resp = await fetch(`${base}${path}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(body ?? {}),
   });
 

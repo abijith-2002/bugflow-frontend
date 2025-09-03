@@ -8,6 +8,16 @@ import DashboardPage from './pages/DashboardPage';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
 import WorkItemDetailPage from './pages/WorkItemDetailPage';
 import { getApiBaseUrl, setApiBaseUrl, pingHealth } from './apiConfig';
+import { isAuthenticated } from './auth';
+
+// PUBLIC_INTERFACE
+function ProtectedRoute({ children }) {
+  /** Guard component that renders children only if authenticated, else redirects to /login. */
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
 
 // PUBLIC_INTERFACE
 function App() {
@@ -134,9 +144,9 @@ function App() {
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<div className="card"><LoginPage /></div>} />
           <Route path="/signup" element={<div className="card"><SignUpPage /></div>} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/project/:id" element={<ProjectDetailsPage />} />
-          <Route path="/project/:projectId/item/:itemId" element={<WorkItemDetailPage />} />
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/project/:id" element={<ProtectedRoute><ProjectDetailsPage /></ProtectedRoute>} />
+          <Route path="/project/:projectId/item/:itemId" element={<ProtectedRoute><WorkItemDetailPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>

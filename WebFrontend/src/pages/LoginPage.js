@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiPost } from '../api';
+import { saveAuth, isAuthenticated } from '../auth';
 
 // PUBLIC_INTERFACE
 export default function LoginPage() {
-  /** Login screen with email/password posting to /auth/login. On success, show success message then redirect to dashboard. */
+  /** Login screen with email/password posting to /auth/login. On success, persist token and redirect to dashboard. */
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -12,6 +13,13 @@ export default function LoginPage() {
   const [authed, setAuthed] = useState(null);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // If already authenticated, go straight to dashboard
+    if (isAuthenticated()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     // After successful authentication, immediately redirect to dashboard
@@ -31,8 +39,14 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const data = await apiPost('/auth/login', { email, password });
-      setAuthed(data);
-      // In a full app, you'd persist tokens here.
+      // Expect at least access_token; optionally token_type, refresh_token, user_id
+      const { access_token, token_type, user_id } = data || {};
+      if (!access_token) {
+        throw new Error('Invalid login response: missing access token');
+      }
+      // Save token (and a simple user object if provided)
+      saveAuth({ access_token, token_type, user: user_id ? { id: user_id } : undefined });
+      setAuthed({ ok: true });
     } catch (err) {
       setError(err?.message || 'Login failed');
     } finally {
