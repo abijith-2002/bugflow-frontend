@@ -8,7 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
 import WorkItemDetailPage from './pages/WorkItemDetailPage';
 import { getApiBaseUrl, setApiBaseUrl, pingHealth } from './apiConfig';
-import { isAuthenticated } from './auth';
+import { isAuthenticated, clearAuth, getDisplayName } from './auth';
 
 // PUBLIC_INTERFACE
 function ProtectedRoute({ children }) {
@@ -17,6 +17,67 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
   return children;
+}
+
+function useOutsideClick(ref, onOutside) {
+  // Close menus when clicking outside
+  useEffect(() => {
+    function handle(e) {
+      if (ref.current && !ref.current.contains(e.target)) onOutside?.(e);
+    }
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [ref, onOutside]);
+  return null;
+}
+
+// PUBLIC_INTERFACE
+function UserAvatar() {
+  /** Renders a circular avatar at top-right showing initials and display name, with a dropdown for logout. */
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  useOutsideClick(wrapRef, () => setOpen(false));
+
+  const name = getDisplayName();
+  const initials = (() => {
+    const n = (name || '').trim();
+    if (!n) return 'U';
+    const parts = n.split(/\s+/).filter(Boolean);
+    const first = parts[0]?.[0] || '';
+    const second = parts.length > 1 ? parts[1][0] : '';
+    return (first + second).toUpperCase() || n[0].toUpperCase();
+  })();
+
+  if (!isAuthenticated()) return null;
+
+  const onLogout = () => {
+    clearAuth();
+    // Redirect to login
+    window.location.assign('/login');
+  };
+
+  return (
+    <div className="user-avatar-wrap" ref={wrapRef} style={{ position: 'relative', marginLeft: 10 }}>
+      <button
+        className="user-avatar-btn"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen(o => !o)}
+        type="button"
+        title={name || 'Account'}
+      >
+        <span className="user-avatar-circle" aria-hidden="true">{initials}</span>
+        <span className="user-avatar-name">{name || 'User'}</span>
+      </button>
+      {open && (
+        <div className="user-menu" role="menu" aria-label="User menu">
+          <button className="user-menu-item" role="menuitem" type="button" onClick={onLogout}>
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 // PUBLIC_INTERFACE
@@ -124,7 +185,7 @@ function App() {
           <h1 className="app-title">BugFlow</h1>
         </div>
 
-        {/* Right-aligned status indicator */}
+        {/* Right-aligned status indicator and user avatar */}
         <div className="spacer" />
         <button
           className={`status-indicator ${online ? 'online' : 'offline'}`}
@@ -137,6 +198,9 @@ function App() {
           <span className="dot" aria-hidden="true" />
           <span className="status-text">{statusLabel}</span>
         </button>
+
+        {/* Avatar with dropdown (visible when authenticated) */}
+        <UserAvatar />
       </header>
 
       <div className="app-shell">

@@ -1,6 +1,15 @@
 const AUTH_TOKEN_KEY = 'bugflow.auth.token';
 const AUTH_USER_KEY = 'bugflow.auth.user';
 
+/**
+ * Normalize various backend user payloads to a consistent shape we store in localStorage.
+ * We prefer display name in this order:
+ * - user.username
+ * - user.name
+ * - user.user_metadata.full_name
+ * - user.user_metadata.name
+ * - user.email (prefix before @)
+ */
 // PUBLIC_INTERFACE
 export function saveAuth({ access_token, user, token_type = 'bearer' }) {
   /** Persist authentication info (token and basic user) to localStorage. */
@@ -8,7 +17,24 @@ export function saveAuth({ access_token, user, token_type = 'bearer' }) {
   try {
     localStorage.setItem(AUTH_TOKEN_KEY, JSON.stringify({ access_token, token_type }));
     if (user !== undefined) {
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
+      const normalized = (() => {
+        if (!user || typeof user !== 'object') return user;
+        const u = { ...user };
+        // Try to compute a displayName we can show in the UI
+        const meta = u.user_metadata || u.app_metadata || {};
+        const email = typeof u.email === 'string' ? u.email : '';
+        const emailName = email.includes('@') ? email.split('@')[0] : '';
+        const displayName =
+          (typeof u.username === 'string' && u.username.trim()) ||
+          (typeof u.name === 'string' && u.name.trim()) ||
+          (typeof meta.full_name === 'string' && meta.full_name.trim()) ||
+          (typeof meta.name === 'string' && meta.name.trim()) ||
+          (emailName || null);
+
+        return { ...u, displayName: displayName || null };
+      })();
+
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(normalized));
     }
   } catch {
     // ignore storage errors
@@ -62,13 +88,34 @@ export function clearAuth() {
   }
 }
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ */
 export function getAuthUser() {
   /** Get the saved user object or null. */
   try {
     const raw = localStorage.getItem(AUTH_USER_KEY);
-    return raw ? JSON.parse(raw) : null;
+    const parsed = raw ? JSON.parse(raw) : null;
+    return parsed || null;
   } catch {
     return null;
   }
+}
+
+// PUBLIC_INTERFACE
+export function getDisplayName() {
+  /** Returns a best-effort display name for the logged-in user using saved user info. */
+  const user = getAuthUser();
+  if (!user) return null;
+  const meta = user.user_metadata || user.app_metadata || {};
+  const email = typeof user.email === 'string' ? user.email : '';
+  const emailName = email.includes('@') ? email.split('@')[0] : '';
+  const name =
+    (typeof user.displayName === 'string' && user.displayName.trim()) ||
+    (typeof user.username === 'string' && user.username.trim()) ||
+    (typeof user.name === 'string' && user.name.trim()) ||
+    (typeof meta.full_name === 'string' && meta.full_name.trim()) ||
+    (typeof meta.name === 'string' && meta.name.trim()) ||
+    (emailName || null);
+  return name || null;
 }
