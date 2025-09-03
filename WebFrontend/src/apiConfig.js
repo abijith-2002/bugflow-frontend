@@ -1,5 +1,10 @@
 const LS_KEY = 'bugflow.apiBaseUrl';
-const DEFAULT_URL = 'http://localhost:3001';
+
+// Prefer environment variable if provided at build time, else default to localhost
+const ENV_URL = process.env.REACT_APP_API_BASE_URL;
+const DEFAULT_URL = ENV_URL && typeof ENV_URL === 'string' && ENV_URL.trim()
+  ? ENV_URL.trim()
+  : 'http://localhost:3001';
 
 // PUBLIC_INTERFACE
 export function getApiBaseUrl() {
@@ -29,6 +34,7 @@ export function loadApiBaseUrlFromStorage() {
   } catch {
     // ignore
   }
+  // If nothing stored, fall back to DEFAULT_URL which may come from REACT_APP_API_BASE_URL
   const effective = normalizeBaseUrl(fromStorage || DEFAULT_URL);
   apiConfig.currentBaseUrl = effective;
   return effective;
