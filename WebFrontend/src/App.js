@@ -8,7 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
 import WorkItemDetailPage from './pages/WorkItemDetailPage';
 import { getApiBaseUrl, setApiBaseUrl, pingHealth } from './apiConfig';
-import { isAuthenticated } from './auth';
+import { isAuthenticated, clearAuth, getAuthUser } from './auth';
 
 // PUBLIC_INTERFACE
 function ProtectedRoute({ children }) {
@@ -108,6 +108,48 @@ function App() {
 
   const statusLabel = useMemo(() => (online ? 'Online' : 'Offline'), [online]);
 
+  // Compute display name and initials from saved auth user
+  const authUser = getAuthUser();
+  const displayName = useMemo(() => {
+    if (!authUser) return null;
+    // Try common fields: username, name, display_name, email, id
+    const name = (authUser.username || authUser.name || authUser.display_name || authUser.email || '').toString().trim();
+    if (name) return name;
+    if (authUser.id) return String(authUser.id).slice(0, 8);
+    return null;
+  }, [authUser]);
+
+  const initials = useMemo(() => {
+    const src = displayName || (authUser && (authUser.email || '')) || '';
+    if (!src) return 'U';
+    const parts = src.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  }, [displayName, authUser]);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const onLogout = () => {
+    // Clear auth and redirect to login
+    clearAuth();
+    setMenuOpen(false);
+    window.location.assign('/login');
+  };
+
+  // Close menu when clicking outside
+  const avatarMenuRef = useRef(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDocClick = (e) => {
+      if (!avatarMenuRef.current) return;
+      if (!avatarMenuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, [menuOpen]);
+
   return (
     <BrowserRouter>
       {/* Global app header at the very top of the page */}
@@ -124,8 +166,9 @@ function App() {
           <h1 className="app-title">BugFlow</h1>
         </div>
 
-        {/* Right-aligned status indicator */}
         <div className="spacer" />
+
+        {/* Right-aligned status indicator */}
         <button
           className={`status-indicator ${online ? 'online' : 'offline'}`}
           aria-live="polite"
@@ -137,6 +180,45 @@ function App() {
           <span className="dot" aria-hidden="true" />
           <span className="status-text">{statusLabel}</span>
         </button>
+
+        {/* User avatar and name (only if authenticated) */}
+        {isAuthenticated() ? (
+          <div
+            className="userbox"
+            ref={avatarMenuRef}
+            style={{ position: 'relative', marginLeft: 10 }}
+          >
+            <button
+              className="userbox-trigger"
+              type="button"
+              onClick={() => setMenuOpen(v => !v)}
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              title={displayName || 'Account'}
+            >
+              <span className="userbox-name">{displayName || 'User'}</span>
+              <span className="avatar" aria-hidden="true">
+                {initials}
+              </span>
+            </button>
+
+            {menuOpen ? (
+              <div
+                role="menu"
+                className="userbox-menu"
+              >
+                <button
+                  role="menuitem"
+                  type="button"
+                  className="userbox-item"
+                  onClick={onLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </header>
 
       <div className="app-shell">
