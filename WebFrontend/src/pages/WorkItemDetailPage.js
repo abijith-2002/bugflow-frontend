@@ -345,27 +345,38 @@ export default function WorkItemDetailPage() {
 
   // PUBLIC_INTERFACE
   const submitNewComment = async (e) => {
-    /** Post a new comment to the backend and update the local list on success. */
+    /** Post a new comment to the backend and update the local list on success.
+     * Requirement: author_display_name MUST come only from localStorage -> bugflow.auth.user.displayName.
+     * Do not derive from session/context/API here. Fallback to 'Anonymous' when missing.
+     */
     e.preventDefault?.();
     if (!workItem) return;
     const trimmed = (newComment || '').trim();
     if (!trimmed) return;
+
     setPostingComment(true);
     setCommentsError('');
+
     try {
-      // Resolve current user's display name from auth store, fallback to 'Anonymous'
-      // Delay import to avoid circular deps at top; this is a light module.
+      // Strictly read display name from localStorage via getDisplayName helper.
+      // This reads the saved user object (bugflow.auth.user) and returns its displayName or null.
       const { getDisplayName } = await import('../auth');
-      const displayNameRaw = typeof getDisplayName === 'function' ? getDisplayName() : null;
-      const authorDisplayName = (displayNameRaw && String(displayNameRaw).trim()) ? String(displayNameRaw).trim() : 'Anonymous';
+      const localDisplayName = typeof getDisplayName === 'function' ? getDisplayName() : null;
+
+      // Apply hard fallback if missing/empty.
+      const authorDisplayName =
+        localDisplayName && String(localDisplayName).trim()
+          ? String(localDisplayName).trim()
+          : 'Anonymous';
 
       const created = await addWorkItemComment({
         project_id: workItem.project_id,
         id: workItem.id,
         body: trimmed,
-        author_id: null, // backend may infer from auth; keep null for now
+        // Intentionally do not send/derive author_id here; only author_display_name from localStorage per requirement.
         author_display_name: authorDisplayName,
       });
+
       if (created && typeof created === 'object') {
         setComments((prev) => [...prev, created]);
       } else {
