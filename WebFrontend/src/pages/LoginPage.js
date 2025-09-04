@@ -1,91 +1,124 @@
-import React, { useState } from "react";
-import { fetchDisplayNameByUserId } from "../userProfileApi";
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { apiPost } from '../api';
+import { saveAuth, isAuthenticated } from '../auth';
+import { getCurrentUserProfile } from '../userProfileApi';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
-
+// PUBLIC_INTERFACE
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [status, setStatus] = useState(null);
+  /** Login screen with email/password posting to /auth/login. On success, persist token and redirect to dashboard. */
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [authed, setAuthed] = useState(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If already authenticated, go straight to dashboard
+    if (isAuthenticated()) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    // After successful authentication, immediately redirect to dashboard
+    if (authed) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [authed, navigate]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setStatus("Logging in...");
-
+    setError('');
+    setAuthed(null);
+    if (!email || !password) {
+      setError('Please provide both email and password.');
+      return;
+    }
+    setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.detail || `Login failed (${res.status})`);
+      const data = await apiPost('/auth/login', { email, password });
+      // Expect at least access_token; optionally token_type, refresh_token, user_id
+      const { access_token, token_type, user_id } = data || {};
+      if (!access_token) {
+        throw new Error('Invalid login response: missing access token');
       }
-      const data = await res.json();
 
-      const userId = data?.user_id;
+      // Save token first so authorized calls work
+      saveAuth({ access_token, token_type });
+
+      // Fetch display_name for current user via backend
       let displayName = null;
-
-      if (userId) {
-        try {
-          const profile = await fetchDisplayNameByUserId(userId);
-          displayName = profile?.display_name || null;
-        } catch (e) {
-          // do not block login if profile fetch fails
-          // eslint-disable-next-line no-console
-          console.warn("Failed to fetch display name:", e);
-        }
+      try {
+        const me = await getCurrentUserProfile();
+        displayName = me?.display_name || null;
+      } catch {
+        // ignore; fallback is handled in UI
       }
 
-      // Store session info as needed by the app
-      localStorage.setItem("access_token", data?.access_token || "");
-      localStorage.setItem("user_id", userId || "");
-      if (displayName) {
-        localStorage.setItem("display_name", displayName);
-      }
-
-      setStatus("Logged in");
-      // Navigate or update app state as necessary
-      // e.g., window.location.href = "/dashboard";
+      const userPayload = user_id ? { id: user_id, displayName: displayName || null } : { displayName: displayName || null };
+      // Save again with user payload containing displayName
+      saveAuth({ access_token, token_type, user: userPayload });
+      setAuthed({ ok: true });
     } catch (err) {
-      setError(err.message || "Unexpected error");
-      setStatus(null);
+      setError(err?.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: 360, margin: "40px auto" }}>
-      <h2>Login</h2>
-      <form onSubmit={onSubmit}>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="email">Email</label>
+    <div>
+      <h2>Welcome back</h2>
+      <p className="subtitle">Login with your credentials</p>
+
+      {error ? <div className="error">{error}</div> : null}
+      {authed ? (
+        <div className="success" style={{ marginBottom: 12 }}>
+          Login successful
+        </div>
+      ) : null}
+      <form className="form" onSubmit={onSubmit}>
+        <div>
+          <label className="label" htmlFor="email">Email</label>
           <input
             id="email"
+            className="input"
             type="email"
+            placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ display: "block", width: "100%" }}
+            autoComplete="email"
             required
           />
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="password">Password</label>
+        <div>
+          <label className="label" htmlFor="password">Password</label>
           <input
             id="password"
+            className="input"
             type="password"
+            placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ display: "block", width: "100%" }}
+            autoComplete="current-password"
             required
+            minLength={8}
           />
         </div>
-        <button type="submit">Login</button>
+
+        <button className="btn" type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+
+        {/* Prompt directly below the button, centered */}
+        <div className="centered-cta">
+          <span className="subtitle">No account?</span>
+          <Link className="link" to="/signup">Create one</Link>
+        </div>
       </form>
-      {status && <p>{status}</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }
