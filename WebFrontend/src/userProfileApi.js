@@ -1,9 +1,16 @@
 import { apiGet } from './api';
+import { getAuthUser } from './auth';
 
 // PUBLIC_INTERFACE
 export async function getCurrentUserProfile() {
-  /** Calls backend GET /users/me to resolve current user's display_name from public.profiles. */
-  return apiGet('/users/me');
+  /** Calls backend GET /users/me to resolve current user's display_name from public.profiles.
+   * Sends user_id as a query parameter when available and includes Authorization header via apiGet helper.
+   */
+  const authUser = getAuthUser();
+  const user_id = authUser?.id || null;
+  const params = {};
+  if (user_id) params.user_id = user_id; // pass as query param when available
+  return apiGet('/users/me', params);
 }
 
 // PUBLIC_INTERFACE

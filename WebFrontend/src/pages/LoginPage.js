@@ -49,7 +49,7 @@ export default function LoginPage() {
       // Save token first so authorized calls work
       saveAuth({ access_token, token_type });
 
-      // Fetch display_name for current user via backend
+      // Fetch display_name for current user via backend (includes user_id as query when available)
       let displayName = null;
       try {
         const me = await getCurrentUserProfile();

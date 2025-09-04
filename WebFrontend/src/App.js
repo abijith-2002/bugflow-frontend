@@ -57,10 +57,13 @@ function UserAvatar() {
     };
   }, []);
 
-  const name = getDisplayName();
+  // Prefer display_name from backend via saved displayName, fallback to Anonymous
+  const rawName = getDisplayName();
+  const nameToShow = (rawName && String(rawName).trim()) ? rawName.trim() : 'Anonymous';
+
   const initials = (() => {
-    const n = (name || '').trim();
-    if (!n) return 'U';
+    const n = nameToShow.trim();
+    if (!n) return 'A';
     const parts = n.split(/\s+/).filter(Boolean);
     const first = parts[0]?.[0] || '';
     const second = parts.length > 1 ? parts[1][0] : '';
@@ -83,10 +86,10 @@ function UserAvatar() {
         aria-expanded={open}
         onClick={() => setOpen(o => !o)}
         type="button"
-        title={name || 'Account'}
+        title={nameToShow || 'Account'}
       >
         <span className="user-avatar-circle" aria-hidden="true">{initials}</span>
-        <span className="user-avatar-name">{name || 'User'}</span>
+        <span className="user-avatar-name">{nameToShow}</span>
       </button>
       {open && (
         <div className="user-menu" role="menu" aria-label="User menu">
