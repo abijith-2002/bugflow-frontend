@@ -156,16 +156,22 @@ input, button, select, textarea {
 }
 
 /* User avatar in header */
-.user-avatar-wrap { display: inline-block; }
+.user-avatar-wrap { 
+  display: inline-block; 
+  /* Nudge the entire avatar group slightly left relative to adjacent elements */
+  margin-right: 4px;
+}
 .user-avatar-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  /* Reduce internal gap to bring initials and name slightly closer */
+  gap: 6px;
   background: var(--surface-alt);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 6px 10px;
+  /* Slightly reduce right padding so the whole pill shifts left visually */
+  padding: 6px 9px;
   cursor: pointer;
   font-size: 13px;
 }

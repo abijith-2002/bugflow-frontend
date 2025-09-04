@@ -79,7 +79,7 @@ function UserAvatar() {
   };
 
   return (
-    <div className="user-avatar-wrap" ref={wrapRef} style={{ position: 'relative', marginLeft: 10 }}>
+    <div className="user-avatar-wrap" ref={wrapRef} style={{ position: 'relative' }}>
       <button
         className="user-avatar-btn"
         aria-haspopup="menu"
