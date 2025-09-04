@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiPost } from '../api';
 import { saveAuth, isAuthenticated } from '../auth';
-import { fetchDisplayNameByUserId } from '../supabaseClient';
+import { getCurrentUserProfile } from '../userProfileApi';
 
 // PUBLIC_INTERFACE
 export default function LoginPage() {
@@ -46,19 +46,20 @@ export default function LoginPage() {
         throw new Error('Invalid login response: missing access token');
       }
 
-      // Use the returned user_id to retrieve the Supabase display name
+      // Save token first so authorized calls work
+      saveAuth({ access_token, token_type });
+
+      // Fetch display_name for current user via backend
       let displayName = null;
       try {
-        if (user_id) {
-          displayName = await fetchDisplayNameByUserId(user_id);
-        }
-      } catch (e) {
-        // Non-fatal; keep null and fallback in UI
-        // console.warn('Failed to fetch display name:', e?.message);
+        const me = await getCurrentUserProfile();
+        displayName = me?.display_name || null;
+      } catch {
+        // ignore; fallback is handled in UI
       }
 
-      // Save token and attach the fetched displayName with the user id
-      const userPayload = user_id ? { id: user_id, displayName: displayName || null } : undefined;
+      const userPayload = user_id ? { id: user_id, displayName: displayName || null } : { displayName: displayName || null };
+      // Save again with user payload containing displayName
       saveAuth({ access_token, token_type, user: userPayload });
       setAuthed({ ok: true });
     } catch (err) {
