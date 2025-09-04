@@ -14,10 +14,22 @@ export async function getCurrentUserProfile() {
 }
 
 // PUBLIC_INTERFACE
+export async function getCurrentUserProfileWithUserId(userId) {
+  /** Calls backend GET /users/me explicitly passing user_id as a query parameter.
+   * This guarantees that the actual network request URL includes ?user_id=<id>.
+   * Authorization header is still included by apiGet.
+   */
+  const params = {};
+  if (userId) params.user_id = userId;
+  return apiGet('/users/me', params);
+}
+
+// PUBLIC_INTERFACE
 export async function fetchAndStoreDisplayName(saveAuthFunc, userId) {
   /** Convenience helper: fetches current user's display_name and saves it with saveAuth. */
   try {
-    const me = await getCurrentUserProfile();
+    // Prefer explicit userId when provided to ensure ?user_id=<id> is sent
+    const me = userId ? await getCurrentUserProfileWithUserId(userId) : await getCurrentUserProfile();
     const displayName = me?.display_name || null;
     // Build a user object with id + displayName if provided
     const userPayload = userId ? { id: userId, displayName } : { displayName };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiPost } from '../api';
 import { saveAuth, isAuthenticated } from '../auth';
-import { getCurrentUserProfile } from '../userProfileApi';
+import { getCurrentUserProfile, getCurrentUserProfileWithUserId } from '../userProfileApi';
 
 // PUBLIC_INTERFACE
 export default function LoginPage() {
@@ -49,10 +49,12 @@ export default function LoginPage() {
       // Save token first so authorized calls work
       saveAuth({ access_token, token_type });
 
-      // Fetch display_name for current user via backend (includes user_id as query when available)
+      // Fetch display_name for current user via backend (ensure user_id is a real query param in URL)
       let displayName = null;
       try {
-        const me = await getCurrentUserProfile();
+        const me = user_id
+          ? await getCurrentUserProfileWithUserId(user_id)
+          : await getCurrentUserProfile();
         displayName = me?.display_name || null;
       } catch {
         // ignore; fallback is handled in UI
