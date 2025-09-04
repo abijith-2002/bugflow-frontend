@@ -1,26 +1,31 @@
-import { apiGet } from './api';
+export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
-// PUBLIC_INTERFACE
-export async function getCurrentUserProfile() {
-  /** Calls backend GET /users/me to resolve current user's display_name from public.profiles. */
-  return apiGet('/users/me');
+async function handleResponse(res) {
+  if (!res.ok) {
+    let msg = `Request failed with status ${res.status}`;
+    try {
+      const data = await res.json();
+      if (data && data.detail) msg = data.detail;
+    } catch (_) {
+      // ignore
+    }
+    throw new Error(msg);
+  }
+  return res.json();
 }
 
 // PUBLIC_INTERFACE
-export async function fetchAndStoreDisplayName(saveAuthFunc, userId) {
-  /** Convenience helper: fetches current user's display_name and saves it with saveAuth. */
-  try {
-    const me = await getCurrentUserProfile();
-    const displayName = me?.display_name || null;
-    // Build a user object with id + displayName if provided
-    const userPayload = userId ? { id: userId, displayName } : { displayName };
-    // saveAuthFunc should be saveAuth from auth.js
-    if (typeof saveAuthFunc === 'function') {
-      // This call assumes token is already stored separately by the caller
-      saveAuthFunc({ access_token: null, user: userPayload });
-    }
-    return displayName;
-  } catch (e) {
-    return null;
+export async function fetchDisplayNameByUserId(userId) {
+  /** Fetch display name from backend by user id. */
+  if (!userId) {
+    throw new Error("userId is required");
   }
+  const res = await fetch(`${API_BASE_URL}/users/me`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ user_id: userId }),
+  });
+  return handleResponse(res);
 }
