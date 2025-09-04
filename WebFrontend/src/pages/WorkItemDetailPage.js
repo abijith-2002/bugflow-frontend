@@ -705,6 +705,20 @@ export default function WorkItemDetailPage() {
                 <div className="label" style={{ marginBottom: 4 }}>Created on</div>
                 <div style={{ color: 'var(--text)' }}>{human.dateTime(workItem.created_at)}</div>
               </div>
+
+              {/* Created By section */}
+              <div style={{ marginTop: 12 }}>
+                <div className="label" style={{ marginBottom: 4 }}>Created By</div>
+                <div style={{ color: 'var(--text)' }}>
+                  {(() => {
+                    // Prefer server field "creator"; fallback to created_by if returned; else Anonymous.
+                    const creator = (workItem?.creator ?? '').toString().trim();
+                    const legacy = (workItem?.created_by ?? '').toString().trim();
+                    const name = creator || legacy;
+                    return name || 'Anonymous';
+                  })()}
+                </div>
+              </div>
             </aside>
           </div>
 

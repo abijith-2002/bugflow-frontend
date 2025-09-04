@@ -203,10 +203,23 @@ export async function getWorkItems({ projectId } = {}) {
  * PUBLIC_INTERFACE
  */
 export async function createWorkItem({ project_id, item_type, title, description, status, priority, created_at }) {
-  /** Create a new work item (task or bug). Follows backend OpenAPI: POST /work-items. */
+  /** Create a new work item (task or bug). Follows backend OpenAPI: POST /work-items.
+   * Adds created_by using current user's displayName from localStorage (bugflow.auth.user.displayName).
+   */
   if (!project_id || !item_type || !title) {
     throw new Error('project_id, item_type and title are required');
   }
+
+  // Safely read displayName from localStorage via auth helper
+  let createdBy = null;
+  try {
+    const { getDisplayName } = await import('./auth');
+    const name = typeof getDisplayName === 'function' ? getDisplayName() : null;
+    if (name && String(name).trim()) createdBy = String(name).trim();
+  } catch {
+    // ignore lookup errors
+  }
+
   const payload = {
     project_id,
     item_type,
@@ -214,6 +227,7 @@ export async function createWorkItem({ project_id, item_type, title, description
     description: description ?? null,
     status: status ?? null,
     priority: priority ?? null,
+    created_by: createdBy ?? null, // backend maps this to `creator` column
     created_at: created_at ?? new Date().toISOString(),
   };
   return apiPost('/work-items', payload);
