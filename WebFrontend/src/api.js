@@ -146,7 +146,8 @@ export async function getWorkItemComments({ project_id, id }) {
  */
 export async function addWorkItemComment({ project_id, id, body, author_id = null, author_display_name = null }) {
   /** Add a new comment to a work item. POST /work-items/{project_id}/{id}/comments
-   * Includes optional author_id and author_display_name fields for better attribution on the backend.
+   * Ensures author_id is sourced from localStorage (bugflow.auth.user.id) for all requests.
+   * author_display_name can still be passed to improve immediate UI attribution.
    */
   if (!project_id || (!id && id !== 0)) {
     throw new Error('project_id and id are required');
@@ -154,12 +155,36 @@ export async function addWorkItemComment({ project_id, id, body, author_id = nul
   if (!body || !String(body).trim()) {
     throw new Error('Comment body is required');
   }
+
+  // Read bugflow.auth.user from localStorage safely and extract id
+  let storedAuthorId = null;
+  try {
+    const raw = localStorage.getItem('bugflow.auth.user');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      const idVal = parsed && parsed.id !== undefined ? parsed.id : null;
+      if (idVal !== undefined && idVal !== null && String(idVal).trim() !== '') {
+        storedAuthorId = idVal;
+      }
+    }
+  } catch {
+    // ignore storage/parse errors; fallback to null below
+  }
+
+  // If an explicit author_id argument is provided, prefer it; otherwise use storedAuthorId; fallback to null
+  const effectiveAuthorId = (author_id !== undefined && author_id !== null && String(author_id).trim() !== '')
+    ? author_id
+    : (storedAuthorId !== undefined ? storedAuthorId : null);
+
   const payload = { body: String(body).trim() };
-  // Attach author fields when provided
-  if (author_id !== undefined) payload.author_id = author_id;
+  // Always include author_id with safe fallback (null when missing)
+  payload.author_id = effectiveAuthorId ?? null;
+
+  // Include author_display_name only if provided (optional UI hint)
   if (author_display_name !== undefined && author_display_name !== null) {
     payload.author_display_name = author_display_name;
   }
+
   return apiPost(`/work-items/${project_id}/${id}/comments`, payload);
 }
 

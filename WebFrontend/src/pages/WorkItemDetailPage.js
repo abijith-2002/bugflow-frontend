@@ -373,7 +373,7 @@ export default function WorkItemDetailPage() {
         project_id: workItem.project_id,
         id: workItem.id,
         body: trimmed,
-        // Intentionally do not send/derive author_id here; only author_display_name from localStorage per requirement.
+        // author_id will be sourced automatically from localStorage inside addWorkItemComment.
         author_display_name: authorDisplayName,
       });
 
