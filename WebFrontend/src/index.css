@@ -155,6 +155,71 @@ input, button, select, textarea {
   border-color: var(--primary);
 }
 
+/* User avatar in header */
+.user-avatar-wrap { display: inline-block; }
+.user-avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.user-avatar-btn:hover { border-color: var(--primary); }
+
+.user-avatar-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--nord10);
+  color: var(--nord6);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  line-height: 1;
+  font-size: 12px;
+}
+
+.user-avatar-name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Dropdown */
+.user-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 160px;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+  padding: 6px;
+  z-index: 20;
+}
+
+.user-menu-item {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.user-menu-item:hover {
+  background: var(--surface-alt);
+}
+
 /* Modal styles */
 .modal-backdrop {
   position: fixed;
