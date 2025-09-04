@@ -353,11 +353,18 @@ export default function WorkItemDetailPage() {
     setPostingComment(true);
     setCommentsError('');
     try {
+      // Resolve current user's display name from auth store, fallback to 'Anonymous'
+      // Delay import to avoid circular deps at top; this is a light module.
+      const { getDisplayName } = await import('../auth');
+      const displayNameRaw = typeof getDisplayName === 'function' ? getDisplayName() : null;
+      const authorDisplayName = (displayNameRaw && String(displayNameRaw).trim()) ? String(displayNameRaw).trim() : 'Anonymous';
+
       const created = await addWorkItemComment({
         project_id: workItem.project_id,
         id: workItem.id,
         body: trimmed,
         author_id: null, // backend may infer from auth; keep null for now
+        author_display_name: authorDisplayName,
       });
       if (created && typeof created === 'object') {
         setComments((prev) => [...prev, created]);

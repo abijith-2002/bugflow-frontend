@@ -144,15 +144,23 @@ export async function getWorkItemComments({ project_id, id }) {
 /**
  * PUBLIC_INTERFACE
  */
-export async function addWorkItemComment({ project_id, id, body, author_id = null }) {
-  /** Add a new comment to a work item. POST /work-items/{project_id}/{id}/comments */
+export async function addWorkItemComment({ project_id, id, body, author_id = null, author_display_name = null }) {
+  /** Add a new comment to a work item. POST /work-items/{project_id}/{id}/comments
+   * Includes optional author_id and author_display_name fields for better attribution on the backend.
+   */
   if (!project_id || (!id && id !== 0)) {
     throw new Error('project_id and id are required');
   }
   if (!body || !String(body).trim()) {
     throw new Error('Comment body is required');
   }
-  return apiPost(`/work-items/${project_id}/${id}/comments`, { body: String(body).trim(), author_id });
+  const payload = { body: String(body).trim() };
+  // Attach author fields when provided
+  if (author_id !== undefined) payload.author_id = author_id;
+  if (author_display_name !== undefined && author_display_name !== null) {
+    payload.author_display_name = author_display_name;
+  }
+  return apiPost(`/work-items/${project_id}/${id}/comments`, payload);
 }
 
 // PUBLIC_INTERFACE
