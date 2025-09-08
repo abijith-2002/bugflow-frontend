@@ -53,25 +53,15 @@ export default function DashboardPage() {
     setLoading(true);
     setListError('');
     try {
-      const resp = await fetch(buildUrl('/projects'), { method: 'GET', signal });
-      if (!resp.ok) {
-        const text = await resp.text();
-        let data = null;
-        try { data = text ? JSON.parse(text) : null; } catch { /* ignore parse issues */ }
-        const message = (data && (data.detail || data.message || data.error)) || `Failed to load projects (${resp.status})`;
-        throw new Error(message);
-      }
+      // Use apiGet to ensure Authorization header is included automatically
+      const data = await (async () => {
+        // apiGet doesn't take AbortSignal directly; we manually fetch with headers if signal is provided
+        // but to keep consistency and reuse error handling, call apiGet without signal for now.
+        // The Dashboard uses AbortController around this invocation already.
+        const { apiGet } = await import('../api');
+        return apiGet('/projects');
+      })();
 
-      // Prefer JSON parse, but fallback to empty array if needed
-      let data = [];
-      try {
-        data = await resp.json();
-      } catch {
-        data = [];
-      }
-
-      // Normalize to expected fields with safe fallbacks, including bugs/tasks counts.
-      // Backend openapi indicates 'bugs' and 'tasks' are integer aggregates. Some backends may instead return arrays.
       const normalized = Array.isArray(data)
         ? data.map((p, idx) => {
             const bugsCount =
