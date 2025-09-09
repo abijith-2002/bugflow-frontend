@@ -1,5 +1,5 @@
 import { getApiBaseUrl } from './apiConfig';
-import { getAuthHeaderValue } from './auth';
+import { getAuthHeaderValue, clearAuth } from './auth';
 
 /**
  * Decide whether a path is public (no Authorization header) or protected.
@@ -21,6 +21,32 @@ function buildHeaders(path, extra = {}) {
   return headers;
 }
 
+/**
+ * INTERNAL: Handles non-OK responses. If response is 401 and not a public path,
+ * clears auth and redirects to /login. Throws an Error for upstream handling.
+ */
+function handleErrorResponse(resp, data, path) {
+  const message =
+    (data && (data.detail || data.message || data.error)) ||
+    `Request failed with status ${resp.status}`;
+  const error = new Error(message);
+  error.status = resp.status;
+  error.data = data;
+
+  // Auto-logout on 401 for protected routes
+  if (resp.status === 401 && !isPublicPath(path)) {
+    try {
+      clearAuth();
+    } finally {
+      // Use replace navigation so back button doesn't return to a broken state
+      if (typeof window !== 'undefined' && window.location) {
+        window.location.replace('/login');
+      }
+    }
+  }
+  throw error;
+}
+
 // PUBLIC_INTERFACE
 export async function apiDelete(path) {
   /** Sends a DELETE request to the backend and returns parsed JSON (if any) or null. Throws on non-2xx.
@@ -36,13 +62,7 @@ export async function apiDelete(path) {
     // ignore parse errors
   }
   if (!resp.ok) {
-    const message =
-      (data && (data.detail || data.message || data.error)) ||
-      `Request failed with status ${resp.status}`;
-    const error = new Error(message);
-    error.status = resp.status;
-    error.data = data;
-    throw error;
+    return handleErrorResponse(resp, data, path);
   }
   return data;
 }
@@ -68,13 +88,7 @@ export async function apiPost(path, body) {
   }
 
   if (!resp.ok) {
-    const message =
-      (data && (data.detail || data.message || data.error)) ||
-      `Request failed with status ${resp.status}`;
-    const error = new Error(message);
-    error.status = resp.status;
-    error.data = data;
-    throw error;
+    return handleErrorResponse(resp, data, path);
   }
   return data;
 }
@@ -106,13 +120,7 @@ export async function apiGet(path, params) {
   }
 
   if (!resp.ok) {
-    const message =
-      (data && (data.detail || data.message || data.error)) ||
-      `Request failed with status ${resp.status}`;
-    const error = new Error(message);
-    error.status = resp.status;
-    error.data = data;
-    throw error;
+    return handleErrorResponse(resp, data, path);
   }
   return data;
 }
@@ -138,13 +146,7 @@ export async function apiPatch(path, body) {
   }
 
   if (!resp.ok) {
-    const message =
-      (data && (data.detail || data.message || data.error)) ||
-      `Request failed with status ${resp.status}`;
-    const error = new Error(message);
-    error.status = resp.status;
-    error.data = data;
-    throw error;
+    return handleErrorResponse(resp, data, path);
   }
   return data;
 }
