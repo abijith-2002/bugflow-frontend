@@ -1,19 +1,32 @@
 import { getApiBaseUrl } from './apiConfig';
 import { getAuthHeaderValue } from './auth';
 
-// Helper: build headers with Authorization if token available
-function withAuthHeaders(extra = {}) {
+/**
+ * Decide whether a path is public (no Authorization header) or protected.
+ * Public endpoints include authentication endpoints like /auth/login and /auth/signup.
+ */
+function isPublicPath(path) {
+  const p = String(path || '').toLowerCase();
+  return p.startsWith('/auth/login') || p.startsWith('/auth/signup');
+}
+
+// INTERNAL: build headers, conditionally add Authorization for protected paths
+function buildHeaders(path, extra = {}) {
   const headers = { ...(extra || {}) };
-  const auth = getAuthHeaderValue();
-  if (auth) headers['Authorization'] = auth;
+  if (!isPublicPath(path)) {
+    const auth = getAuthHeaderValue();
+    if (auth) headers['Authorization'] = auth;
+  }
   return headers;
 }
 
 // PUBLIC_INTERFACE
 export async function apiDelete(path) {
-  /** Sends a DELETE request to the backend and returns parsed JSON (if any) or null. Throws on non-2xx. */
+  /** Sends a DELETE request to the backend and returns parsed JSON (if any) or null. Throws on non-2xx.
+   * Automatically attaches Authorization header for protected endpoints.
+   */
   const base = getApiBaseUrl();
-  const resp = await fetch(`${base}${path}`, { method: 'DELETE', headers: withAuthHeaders() });
+  const resp = await fetch(`${base}${path}`, { method: 'DELETE', headers: buildHeaders(path) });
   const text = await resp.text();
   let data = null;
   try {
@@ -35,11 +48,13 @@ export async function apiDelete(path) {
 
 // PUBLIC_INTERFACE
 export async function apiPost(path, body) {
-  /** Sends a JSON POST request to the backend and returns parsed JSON or throws an error with message. */
+  /** Sends a JSON POST request to the backend and returns parsed JSON or throws an error with message.
+   * Automatically attaches Authorization header for protected endpoints (not for /auth/login or /auth/signup).
+   */
   const base = getApiBaseUrl();
   const resp = await fetch(`${base}${path}`, {
     method: 'POST',
-    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    headers: buildHeaders(path, { 'Content-Type': 'application/json' }),
     body: JSON.stringify(body ?? {}),
   });
 
@@ -68,6 +83,7 @@ export async function apiGet(path, params) {
   /** 
    * Sends a GET request with optional query parameters.
    * Ensures proper URL encoding and excludes null/undefined params to avoid backend parsing errors.
+   * Automatically attaches Authorization header for protected endpoints.
    */
   const base = getApiBaseUrl();
   const url = new URL(`${base}${path}`);
@@ -79,7 +95,7 @@ export async function apiGet(path, params) {
     });
   }
 
-  const resp = await fetch(url.toString(), { method: 'GET', headers: withAuthHeaders() });
+  const resp = await fetch(url.toString(), { method: 'GET', headers: buildHeaders(path) });
   const text = await resp.text();
   let data = null;
   try {
@@ -102,11 +118,13 @@ export async function apiGet(path, params) {
 
 // PUBLIC_INTERFACE
 export async function apiPatch(path, body) {
-  /** Sends a JSON PATCH request to the backend and returns parsed JSON or throws an error. */
+  /** Sends a JSON PATCH request to the backend and returns parsed JSON or throws an error.
+   * Automatically attaches Authorization header for protected endpoints.
+   */
   const base = getApiBaseUrl();
   const resp = await fetch(`${base}${path}`, {
     method: 'PATCH',
-    headers: withAuthHeaders({ 'Content-Type': 'application/json' }),
+    headers: buildHeaders(path, { 'Content-Type': 'application/json' }),
     body: JSON.stringify(body ?? {}),
   });
 
