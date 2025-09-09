@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import '../styles/DashboardPage.css';
-import { buildUrl, apiPost, getWorkItems } from '../api';
+import { apiGet, apiPost } from '../api';
 import { getApiBaseUrl } from '../apiConfig';
 import { FaPlus, FaSync } from 'react-icons/fa';
 
@@ -53,25 +53,8 @@ export default function DashboardPage() {
     setLoading(true);
     setListError('');
     try {
-      const resp = await fetch(buildUrl('/projects'), { method: 'GET', signal });
-      if (!resp.ok) {
-        const text = await resp.text();
-        let data = null;
-        try { data = text ? JSON.parse(text) : null; } catch { /* ignore parse issues */ }
-        const message = (data && (data.detail || data.message || data.error)) || `Failed to load projects (${resp.status})`;
-        throw new Error(message);
-      }
-
-      // Prefer JSON parse, but fallback to empty array if needed
-      let data = [];
-      try {
-        data = await resp.json();
-      } catch {
-        data = [];
-      }
-
-      // Normalize to expected fields with safe fallbacks, including bugs/tasks counts.
-      // Backend openapi indicates 'bugs' and 'tasks' are integer aggregates. Some backends may instead return arrays.
+      // Use centralized API helper so Authorization header is attached for /projects
+      const data = await apiGet('/projects');
       const normalized = Array.isArray(data)
         ? data.map((p, idx) => {
             const bugsCount =
@@ -100,7 +83,6 @@ export default function DashboardPage() {
             };
           })
         : [];
-
       setProjects(normalized);
     } catch (err) {
       if (err?.name === 'AbortError' || err?.message?.toLowerCase().includes('aborted')) {

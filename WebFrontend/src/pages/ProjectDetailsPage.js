@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { apiGet, getWorkItems, buildUrl, createWorkItem, apiDelete } from '../api';
+import { apiGet, getWorkItems, createWorkItem, apiDelete } from '../api';
 import '../styles/DashboardPage.css'; // reuse existing styles for lists/cards
 import { FaAngleLeft, FaPlus } from 'react-icons/fa';
 
@@ -54,15 +54,7 @@ export default function ProjectDetailsPage() {
       setLoadingProject(true);
       setProjectErr('');
       try {
-        const resp = await fetch(buildUrl('/projects'), { method: 'GET', signal: controller.signal });
-        if (!resp.ok) {
-          const text = await resp.text();
-          let data = null;
-          try { data = text ? JSON.parse(text) : null; } catch { /* ignore */ }
-          const message = (data && (data.detail || data.message || data.error)) || `Failed to load projects (${resp.status})`;
-          throw new Error(message);
-        }
-        const arr = await resp.json();
+        const arr = await apiGet('/projects');
         const found = Array.isArray(arr) ? arr.find(p => p?.id === id) : null;
         if (mounted) {
           setProject(found || null);

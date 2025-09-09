@@ -7,6 +7,7 @@ import { getAuthHeaderValue } from './auth';
  */
 function isPublicPath(path) {
   const p = String(path || '').toLowerCase();
+  // Only auth endpoints are public; all others, including /projects, are protected.
   return p.startsWith('/auth/login') || p.startsWith('/auth/signup');
 }
 
