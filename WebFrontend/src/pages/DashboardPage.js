@@ -49,6 +49,7 @@ export default function DashboardPage() {
   const [projectBugs, setProjectBugs] = useState([]);
 
   const apiBase = getApiBaseUrl();
+  console.log("apiBase-->",apiBase)
 
   // Extracted loader to reuse after create and refresh
   const loadProjects = async (signal) => {
@@ -105,6 +106,7 @@ export default function DashboardPage() {
     return () => {
       controller.abort();
     };
+    console.log("apiBase-->",apiBase)
   }, [apiBase]);
 
   const handleCreateProject = async (e) => {
