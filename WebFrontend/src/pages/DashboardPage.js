@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/DashboardPage.css';
 import { apiGet, apiPost } from '../api';
 import { getApiBaseUrl } from '../apiConfig';
@@ -25,6 +26,7 @@ export default function DashboardPage() {
    * - Adds a Refresh button to manually reload the project list from backend.
    * - On clicking a project card, opens a details section showing the project title and lists 'Tasks' and 'Bugs' from /work-items.
    */
+  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [projectName, setProjectName] = useState('');
   const [projectKey, setProjectKey] = useState('');
@@ -165,7 +167,7 @@ export default function DashboardPage() {
      * Navigate to the dedicated Project Details page.
      */
     if (!project || !project.id) return;
-    window.location.assign(`/project/${project.id}`);
+    navigate(`/project/${project.id}`);
   };
 
   const emptyState = useMemo(() => !loading && projects.length === 0 && !listError, [loading, projects.length, listError]);
