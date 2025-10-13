@@ -113,6 +113,44 @@ export async function pingHealth(signal) {
   }
 }
 
+// PUBLIC_INTERFACE
+export function getApiDiagnostics() {
+  /** Returns runtime diagnostics for the current API base and origin to help detect mixed-content risks.
+   * Fields:
+   * - baseUrl: current normalized base
+   * - isHttpsOrigin: whether the app is served via HTTPS
+   * - baseIsHttp: whether the API base uses HTTP scheme
+   * - baseHost: hostname extracted from API base
+   * - baseHostIsLocal: whether the API base host is a localhost-style host
+   * - isMixedContentRisk: true if HTTPS origin + HTTP API base (requests likely blocked)
+   * - likelyMisconfig: HTTPS origin with either HTTP scheme OR localhost API base
+   */
+  const base = getApiBaseUrl();
+  let parsed = null;
+  try {
+    parsed = new URL(base);
+  } catch {
+    // ignore parse error
+  }
+  const baseProtocol = parsed?.protocol || (base.startsWith('https') ? 'https:' : (base.startsWith('http') ? 'http:' : ''));
+  const baseHost = parsed?.hostname || '';
+  const isHttpsOrigin = typeof window !== 'undefined' && window.location?.protocol === 'https:';
+  const baseHostIsLocal = isLocalHostname(baseHost);
+  const baseIsHttp = baseProtocol === 'http:';
+  const isMixedContentRisk = isHttpsOrigin && baseIsHttp;
+  const likelyMisconfig = isHttpsOrigin && (baseIsHttp || baseHostIsLocal);
+
+  return {
+    baseUrl: base,
+    baseHost,
+    isHttpsOrigin,
+    baseIsHttp,
+    baseHostIsLocal,
+    isMixedContentRisk,
+    likelyMisconfig,
+  };
+}
+
 // Keep current URL in module memory for fast reads
 const apiConfig = {
   currentBaseUrl: normalizeBaseUrl(DEFAULT_URL_RAW),
@@ -121,9 +159,41 @@ const apiConfig = {
 // Initialize from storage on import (this may override currentBaseUrl if stored)
 loadApiBaseUrlFromStorage();
 
+// INTERNAL: one-time console warning in production/HTTPS to help detect misconfig
+let warnedOnce = false;
+(function warnOnMisconfigOnce() {
+  if (warnedOnce) return;
+  const diag = getApiDiagnostics();
+  const isProd = process.env.NODE_ENV === 'production';
+  if (diag.isHttpsOrigin && (diag.isMixedContentRisk || diag.baseHostIsLocal)) {
+    const base = diag.baseUrl;
+    const details = diag.baseHostIsLocal
+      ? `The API base points to a local host (${base}).`
+      : `The API base (${base}) is HTTP while the app is served via HTTPS.`;
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[BugFlow] API base configuration warning: ${details} ` +
+      'Browsers will block mixed content or prevent requests. ' +
+      'Set REACT_APP_API_BASE_URL to an HTTPS origin for production (e.g., https://api.example.com), ' +
+      'or open the "Backend API Settings" (status indicator) to change it at runtime. ' +
+      'If you previously tested with localhost, clear the localStorage key "bugflow.apiBaseUrl".'
+    );
+    warnedOnce = true;
+  } else if (isProd && !ENV_URL) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[BugFlow] REACT_APP_API_BASE_URL is not set at build time. ' +
+      'The app will default to http://localhost:3001 which is not suitable for HTTPS production. ' +
+      'Configure an HTTPS API base in your hosting environment.'
+    );
+    warnedOnce = true;
+  }
+})();
+
 export default {
   getApiBaseUrl,
   setApiBaseUrl,
   loadApiBaseUrlFromStorage,
   pingHealth,
+  getApiDiagnostics,
 };

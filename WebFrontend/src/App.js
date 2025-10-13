@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import bugIcon from './assets/bug.svg';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import './index.css';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 import DashboardPage from './pages/DashboardPage';
 import ProjectDetailsPage from './pages/ProjectDetailsPage';
 import WorkItemDetailPage from './pages/WorkItemDetailPage';
-import { getApiBaseUrl, setApiBaseUrl, pingHealth } from './apiConfig';
+import { getApiBaseUrl, setApiBaseUrl, pingHealth, loadApiBaseUrlFromStorage, getApiDiagnostics } from './apiConfig';
 import { isAuthenticated, clearAuth, getDisplayName } from './auth';
 
 // PUBLIC_INTERFACE
@@ -34,6 +34,7 @@ function useOutsideClick(ref, onOutside) {
 // PUBLIC_INTERFACE
 function UserAvatar() {
   /** Renders a circular avatar at top-right showing initials and display name, with a dropdown for logout. */
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [version, setVersion] = useState(0); // bump to re-read getDisplayName on auth changes
   const wrapRef = useRef(null);
@@ -74,8 +75,8 @@ function UserAvatar() {
 
   const onLogout = () => {
     clearAuth();
-    // Redirect to login
-    window.location.assign('/login');
+    // Client-side navigation to login to avoid full reloads
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -155,6 +156,24 @@ function App() {
     }
   };
 
+  // Clear a persisted local override if present (helps when production is HTTPS but override points to localhost)
+  const handleClearApiOverride = async () => {
+    try {
+      localStorage.removeItem('bugflow.apiBaseUrl');
+    } catch {
+      // ignore
+    }
+    const effective = loadApiBaseUrlFromStorage();
+    setUrlInput(effective);
+    try {
+      const ok = await pingHealth();
+      setOnline(ok);
+      setLastCheckedAt(Date.now());
+    } catch {
+      setOnline(false);
+    }
+  };
+
   // Accessibility: focus trap for modal
   const modalRef = useRef(null);
   const firstFocusableRef = useRef(null);
@@ -190,17 +209,22 @@ function App() {
   }, [showModal]);
 
   const statusLabel = useMemo(() => (online ? 'Online' : 'Offline'), [online]);
+  const diagnostics = useMemo(() => getApiDiagnostics(), [urlInput, online, lastCheckedAt, showModal]);
+
+  const showConfigBanner =
+    diagnostics?.isHttpsOrigin &&
+    (diagnostics?.baseHostIsLocal || diagnostics?.isMixedContentRisk);
 
   return (
     <BrowserRouter>
       {/* Global app header at the very top of the page */}
       <header className="global-app-header">
         <div className="app-title-wrapper">
-          <img 
-            src={bugIcon} 
-            alt="" 
-            className="bug-icon" 
-            width="24" 
+          <img
+            src={bugIcon}
+            alt=""
+            className="bug-icon"
+            width="24"
             height="24"
             aria-hidden="true"
           />
@@ -224,6 +248,42 @@ function App() {
         {/* Avatar with dropdown (visible when authenticated) */}
         <UserAvatar />
       </header>
+
+      {/* Optional production-time misconfig banner */}
+      {showConfigBanner && (
+        <div
+          role="alert"
+          style={{
+            background: 'rgba(191,97,106,0.12)',
+            border: '1px solid rgba(191,97,106,0.35)',
+            color: 'var(--nord6)',
+            padding: '10px 12px',
+            borderRadius: 8,
+            margin: '10px 20px 0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            flexWrap: 'wrap',
+          }}
+          title="API base URL misconfiguration"
+        >
+          <span style={{ fontWeight: 600, color: '#BF616A' }}>Warning:</span>
+          <span style={{ color: 'var(--nord6)' }}>
+            App is served over HTTPS but the API base is{' '}
+            <span className="code">{getApiBaseUrl()}</span>
+            {diagnostics?.baseHostIsLocal ? ' (localhost override).' : '.'} Browsers may block requests as mixed content.
+            Please configure an HTTPS API base for production.
+          </span>
+          <div style={{ display: 'inline-flex', gap: 8 }}>
+            <button className="btn btn-secondary" type="button" onClick={handleOpenModal} style={{ width: 'auto' }}>
+              Open Settings
+            </button>
+            <button className="btn btn-secondary" type="button" onClick={handleClearApiOverride} style={{ width: 'auto' }}>
+              Clear Override
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="app-shell">
         <Routes>

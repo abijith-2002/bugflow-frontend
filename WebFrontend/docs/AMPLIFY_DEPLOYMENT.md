@@ -36,18 +36,31 @@ A secondary issue was hard navigation via `window.location.assign` from `/dashbo
 ## Optional: Runtime override
 - The frontend includes a "Backend API Settings" modal (click the status indicator in the top-right of the app header).
 - You can set the base URL at runtime for testing, but the long-term fix is to configure `REACT_APP_API_BASE_URL` in Amplify.
+- If you previously set a local override (e.g., `http://localhost:3001`) while testing and then deploy to HTTPS, clear the localStorage override:
+  - Open DevTools -> Application (or Storage) -> Local Storage -> your domain.
+  - Remove the key `bugflow.apiBaseUrl`.
+  - Alternatively, use the "Clear Override" button in the production warning banner.
+
+## Misconfiguration detection and warnings
+- At runtime, when the app is served over HTTPS, the frontend now:
+  - Auto-upgrades non-local HTTP API bases to HTTPS to avoid mixed content.
+  - Logs a console warning if the API base points to a localhost host (`localhost`, `127.0.0.1`, `::1`) while the app is on HTTPS.
+  - Shows a small in-app warning banner prompting you to configure an HTTPS API base and/or clear the local override.
+- Recommendation: always set `REACT_APP_API_BASE_URL` to an HTTPS origin in Amplify for production deployments.
 
 ## Verification checklist
 - Start from `/login`, authenticate, and land on `/dashboard`.
-- Click a project to navigate to `/project/:id` (client-side routing).
-- In the Network tab, you should see:
-  - `GET /projects` (to fetch the project list for details page)
-  - `GET /work-items?project_id=<id>` (to load items)
+- Clicking a project navigates client-side to `/project/:id` (no full page reload). You should see:
+  - `GET /projects`
+  - `GET /work-items?project_id=<id>`
+- A manual refresh on `/dashboard` should hydrate the React app and trigger `GET /projects`.
 - If requests are blocked:
   - Confirm `REACT_APP_API_BASE_URL` is set and uses HTTPS.
   - Confirm your backend’s CORS allows the Amplify domain.
   - Confirm SPA rewrite rules are configured.
+  - Clear any local override in localStorage (`bugflow.apiBaseUrl`) if it points to localhost.
 
 ## Notes
 - Local dev defaults to `http://localhost:3001` which is fine on HTTP. For production, always use HTTPS.
-- We added a small safety in `apiConfig` to auto-upgrade non-local HTTP bases to HTTPS when the app runs over HTTPS, but the recommended fix is to set the correct HTTPS URL via environment variables.
+- We added a small safety in `apiConfig` to auto-upgrade non-local HTTP bases to HTTPS when the app runs over HTTPS, and to warn when localhost overrides are detected on production.
+- Client-side navigation is used throughout (React Router) to avoid full reloads; deep links are supported by the SPA rewrite rule.
